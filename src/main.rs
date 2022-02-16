@@ -14,7 +14,6 @@ use JkProgram::*;
 
 impl fmt::Display for JkProgram {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        
         match self {
             JkInt(i) => write!(f, "{}", i),
             JkFloat(fl) => write!(f, "{}", fl),
@@ -24,18 +23,23 @@ impl fmt::Display for JkProgram {
             JkString(s) => write!(f, "\"{}\"", s),
             JkQuotation(q) => {
                 write!(f, "[")?;
-                write!(f, "{}", q.iter().map(|p| p.to_string()).collect::<Vec<String>>().join(", "))?;
+                write!(
+                    f,
+                    "{}",
+                    q.iter()
+                        .map(|p| p.to_string())
+                        .collect::<Vec<String>>()
+                        .join(", ")
+                )?;
                 write!(f, "]")
             }
         }
     }
 }
 
-
 fn main() {
     let program = JkQuotation(vec![JkInt(1), JkInt(2), JkWord("+".to_string())]);
 
     println!("Program:");
     println!("{}", program);
-
 }
