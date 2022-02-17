@@ -78,6 +78,7 @@ fn parse(input: &str) -> Result<JkQueue, &str>
                 for p in program.into_inner() {
                     match p.as_rule() {
                         Rule::integer => res.0.push(JkInt(p.as_str().parse::<i64>().unwrap())),
+                        Rule::boolean => res.0.push(JkBool(p.as_str().parse::<bool>().unwrap())),
                         Rule::word => res.0.push(JkWord(p.as_str().to_string())),
                         Rule::EOI => (),
                         _ => unreachable!(),
@@ -91,7 +92,7 @@ fn parse(input: &str) -> Result<JkQueue, &str>
 }
 
 fn main() {
-    match parse("1 2 add 3 sub") {
+    match parse("1 2 add 3 sub false true") {
         Ok(res) => println!("{}", res),
         Err(msg) => println!("{}", msg),
     }

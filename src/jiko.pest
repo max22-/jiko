@@ -1,5 +1,6 @@
 WHITESPACE = _{ " " }
 integer = @{ "-"? ~ ASCII_DIGIT+ }
-word = @{ ASCII_ALPHA+ }
-program = { integer | word }
+boolean = @{ "true" | "false" }
+word = @{ !boolean ~ ASCII_ALPHA+ }
+program = { integer | boolean | word }
 input = { SOI ~ program* ~ EOI }
