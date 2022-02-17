@@ -1,9 +1,9 @@
-extern crate  pest;
+extern crate pest;
 #[macro_use]
 extern crate pest_derive;
 
-use std::fmt;
 use std::collections::HashMap;
+use std::fmt;
 
 enum JkProgram {
     JkInt(i64),
@@ -55,17 +55,17 @@ struct JkFiber {
 
 impl fmt::Display for JkList {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-            write!(f, "[")?;
-            write!(
-                f,
-                "{}",
-                self.0
-                    .iter()
-                    .map(|p| p.to_string())
-                    .collect::<Vec<String>>()
-                    .join(", ")
-            )?;
-            write!(f, "]")
+        write!(f, "[")?;
+        write!(
+            f,
+            "{}",
+            self.0
+                .iter()
+                .map(|p| p.to_string())
+                .collect::<Vec<String>>()
+                .join(", ")
+        )?;
+        write!(f, "]")
     }
 }
 
@@ -75,15 +75,14 @@ use pest::Parser;
 #[grammar = "jiko.pest"]
 pub struct JkParser;
 
-fn from_parse_result(p: pest::iterators::Pair<Rule>) -> JkProgram
-{
+fn from_parse_result(p: pest::iterators::Pair<Rule>) -> JkProgram {
     let (p_rule, p_str, mut p_inner) = (p.as_rule(), p.as_str(), p.into_inner());
     match p_rule {
         Rule::integer => JkInt(p_str.parse::<i64>().unwrap()),
         Rule::boolean => JkBool(p_str.parse::<bool>().unwrap()),
         Rule::word => JkWord(p_str.to_string()),
         Rule::quotation => {
-            let mut res: Vec<JkProgram> = vec!();
+            let mut res: Vec<JkProgram> = vec![];
             println!("quotation: {}", p_inner);
             for p2 in p_inner {
                 res.push(from_parse_result(p2));
@@ -92,25 +91,29 @@ fn from_parse_result(p: pest::iterators::Pair<Rule>) -> JkProgram
         }
         Rule::program => from_parse_result(p_inner.next().unwrap()),
         Rule::EOI => JkWord("EOI".to_string()),
-        _ => { println!("unreachable: {:?}", (p_rule, p_str, p_inner)); JkWord("Unreachable".to_string()) }
-        //_ => unreachable!(),
+        _ => {
+            println!("unreachable: {:?}", (p_rule, p_str, p_inner));
+            JkWord("Unreachable".to_string())
+        } //_ => unreachable!(),
     }
 }
 
-fn parse(input: &str) -> Result<JkQueue, &str>
-{
+fn parse(input: &str) -> Result<JkQueue, &str> {
     let pest_output = JkParser::parse(Rule::input, input);
     match pest_output {
         Ok(mut checked_output) => {
-            let mut res: JkQueue = JkList(vec!());
+            let mut res: JkQueue = JkList(vec![]);
             for program in checked_output.next().unwrap().into_inner() {
                 for p in program.into_inner() {
                     res.0.push(from_parse_result(p));
                 }
             }
             Ok(res)
-        },
-        Err(err) => { println!("{:?}", err); Err("Parse error") }
+        }
+        Err(err) => {
+            println!("{:?}", err);
+            Err("Parse error")
+        }
     }
 }
 
