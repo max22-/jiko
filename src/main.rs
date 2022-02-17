@@ -53,6 +53,6 @@ fn main() {
     println!("Program:");
     println!("{}", program);
 
-    let parse = JkParser::parse(Rule::file, "1234");
+    let parse = JkParser::parse(Rule::input, "1234");
     println!("parse: {:?}", parse);
 }
