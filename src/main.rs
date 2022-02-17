@@ -3,6 +3,7 @@ extern crate  pest;
 extern crate pest_derive;
 
 use std::fmt;
+use std::collections::HashMap;
 
 enum JkProgram {
     JkInt(i64),
@@ -44,6 +45,13 @@ impl fmt::Display for JkProgram {
 struct JkList(Vec<JkProgram>);
 type JkStack = JkList;
 type JkQueue = JkList;
+type JkDict = HashMap<String, JkProgram>;
+struct JkFiber {
+    stack: JkStack,
+    queue: JkQueue,
+    dict: JkDict,
+    children: Vec<JkFiber>,
+}
 
 impl fmt::Display for JkList {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
