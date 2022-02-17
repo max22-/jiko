@@ -1,0 +1,3 @@
+integer = { "-"* ~ ASCII_DIGIT+ }
+
+file = { SOI ~ integer ~ EOI }

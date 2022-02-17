@@ -1,3 +1,7 @@
+extern crate  pest;
+#[macro_use]
+extern crate pest_derive;
+
 use std::fmt;
 
 enum JkProgram {
@@ -37,9 +41,18 @@ impl fmt::Display for JkProgram {
     }
 }
 
+use pest::Parser;
+
+#[derive(Parser)]
+#[grammar = "jiko.pest"]
+pub struct JkParser;
+
 fn main() {
     let program = JkQuotation(vec![JkInt(1), JkInt(2), JkWord("+".to_string())]);
 
     println!("Program:");
     println!("{}", program);
+
+    let parse = JkParser::parse(Rule::file, "1234");
+    println!("parse: {:?}", parse);
 }
