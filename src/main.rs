@@ -83,18 +83,14 @@ fn from_parse_result(p: pest::iterators::Pair<Rule>) -> JkProgram {
         Rule::word => JkWord(p_str.to_string()),
         Rule::quotation => {
             let mut res: Vec<JkProgram> = vec![];
-            println!("quotation: {}", p_inner);
             for p2 in p_inner {
                 res.push(from_parse_result(p2));
             }
             JkQuotation(res)
         }
         Rule::program => from_parse_result(p_inner.next().unwrap()),
-        Rule::EOI => JkWord("EOI".to_string()),
-        _ => {
-            println!("unreachable: {:?}", (p_rule, p_str, p_inner));
-            JkWord("Unreachable".to_string())
-        } //_ => unreachable!(),
+        Rule::EOI => JkWord("EOI".to_string()), /* TODO : handle this case better ^^ */
+        _ => unreachable!(),
     }
 }
 
