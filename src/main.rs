@@ -67,26 +67,32 @@ use pest::Parser;
 #[grammar = "jiko.pest"]
 pub struct JkParser;
 
-fn parse(input: &str) -> JkQueue
+
+fn parse(input: &str) -> Result<JkQueue, &str>
 {
-    let pest_output = JkParser::parse(Rule::input, input).expect("Parse error").next().unwrap();
-
-
-    let mut res: JkQueue = JkList(vec!());
-
-    for program in pest_output.into_inner() {
-        for p in program.into_inner() {
-            match p.as_rule() {
-                Rule::integer => res.0.push(JkInt(p.as_str().parse::<i64>().unwrap())),
-                Rule::word => res.0.push(JkWord(p.as_str().to_string())),
-                Rule::EOI => (),
-                _ => unreachable!(),
+    let pest_output = JkParser::parse(Rule::input, input);
+    match pest_output {
+        Ok(mut checked_output) => {
+            let mut res: JkQueue = JkList(vec!());
+            for program in checked_output.next().unwrap().into_inner() {
+                for p in program.into_inner() {
+                    match p.as_rule() {
+                        Rule::integer => res.0.push(JkInt(p.as_str().parse::<i64>().unwrap())),
+                        Rule::word => res.0.push(JkWord(p.as_str().to_string())),
+                        Rule::EOI => (),
+                        _ => unreachable!(),
+                    }
+                }
             }
-        }
+            Ok(res)
+        },
+        Err(_) => Err("Parse error"),
     }
-    res
 }
 
 fn main() {
-    println!("{}", parse("1 2 add 3 sub"));
+    match parse("1 2 add 3 sub") {
+        Ok(res) => println!("{}", res),
+        Err(msg) => println!("{}", msg),
+    }
 }
