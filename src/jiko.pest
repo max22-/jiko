@@ -1,3 +1,5 @@
-integer = { "-"* ~ ASCII_DIGIT+ }
-
-input = { SOI ~ integer ~ EOI }
+WHITESPACE = _{ " " }
+integer = @{ "-"? ~ ASCII_DIGIT+ }
+word = @{ ASCII_ALPHA+ }
+program = { integer | word }
+input = { SOI ~ program* ~ EOI }
