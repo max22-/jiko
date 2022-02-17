@@ -2,5 +2,6 @@ WHITESPACE = _{ " " }
 integer = @{ "-"? ~ ASCII_DIGIT+ }
 boolean = @{ "true" | "false" }
 word = @{ !boolean ~ ASCII_ALPHA+ }
-program = { integer | boolean | word }
+quotation = { "[" ~ program* ~ "]" }
+program = { integer | boolean | word | quotation }
 input = { SOI ~ program* ~ EOI }

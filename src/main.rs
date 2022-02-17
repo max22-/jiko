@@ -67,6 +67,27 @@ use pest::Parser;
 #[grammar = "jiko.pest"]
 pub struct JkParser;
 
+fn from_parse_result(p: pest::iterators::Pair<Rule>) -> JkProgram
+{
+    let (p_rule, p_str, mut p_inner) = (p.as_rule(), p.as_str(), p.into_inner());
+    match p_rule {
+        Rule::integer => JkInt(p_str.parse::<i64>().unwrap()),
+        Rule::boolean => JkBool(p_str.parse::<bool>().unwrap()),
+        Rule::word => JkWord(p_str.to_string()),
+        Rule::quotation => {
+            let mut res: Vec<JkProgram> = vec!();
+            println!("quotation: {}", p_inner);
+            for p2 in p_inner {
+                res.push(from_parse_result(p2));
+            }
+            JkQuotation(res)
+        }
+        Rule::program => from_parse_result(p_inner.next().unwrap()),
+        Rule::EOI => JkWord("EOI".to_string()),
+        _ => { println!("unreachable: {:?}", (p_rule, p_str, p_inner)); JkWord("Unreachable".to_string()) }
+        //_ => unreachable!(),
+    }
+}
 
 fn parse(input: &str) -> Result<JkQueue, &str>
 {
@@ -76,23 +97,17 @@ fn parse(input: &str) -> Result<JkQueue, &str>
             let mut res: JkQueue = JkList(vec!());
             for program in checked_output.next().unwrap().into_inner() {
                 for p in program.into_inner() {
-                    match p.as_rule() {
-                        Rule::integer => res.0.push(JkInt(p.as_str().parse::<i64>().unwrap())),
-                        Rule::boolean => res.0.push(JkBool(p.as_str().parse::<bool>().unwrap())),
-                        Rule::word => res.0.push(JkWord(p.as_str().to_string())),
-                        Rule::EOI => (),
-                        _ => unreachable!(),
-                    }
+                    res.0.push(from_parse_result(p));
                 }
             }
             Ok(res)
         },
-        Err(_) => Err("Parse error"),
+        Err(err) => { println!("{:?}", err); Err("Parse error") }
     }
 }
 
 fn main() {
-    match parse("1 2 add 3 sub false true") {
+    match parse("1 2 add 3 sub false true [1 2 false]") {
         Ok(res) => println!("{}", res),
         Err(msg) => println!("{}", msg),
     }
