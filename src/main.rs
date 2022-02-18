@@ -7,6 +7,7 @@ use std::collections::VecDeque;
 use std::fmt;
 
 enum JkProgram {
+    JkBuiltin(fn(&mut JkFiber)),
     JkInt(i64),
     JkFloat(f64),
     JkBool(bool),
@@ -21,6 +22,7 @@ use JkProgram::*;
 impl fmt::Display for JkProgram {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
+            JkBuiltin(b) => write!(f, "<builtin {:p}>", b),
             JkInt(i) => write!(f, "{}", i),
             JkFloat(fl) => write!(f, "{}", fl),
             JkBool(b) => write!(f, "{}", b),
