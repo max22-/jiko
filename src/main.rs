@@ -3,6 +3,7 @@ extern crate pest;
 extern crate pest_derive;
 
 use std::collections::HashMap;
+use std::collections::VecDeque;
 use std::fmt;
 
 enum JkProgram {
@@ -42,7 +43,7 @@ impl fmt::Display for JkProgram {
     }
 }
 
-struct JkList(Vec<JkProgram>);
+struct JkList(VecDeque<JkProgram>);
 type JkStack = JkList;
 type JkQueue = JkList;
 type JkDict = HashMap<String, JkProgram>;
@@ -51,6 +52,24 @@ struct JkFiber {
     queue: JkQueue,
     dict: JkDict,
     children: Vec<JkFiber>,
+}
+
+impl JkList {
+    fn push_back(&mut self, p: JkProgram) {
+        self.0.push_back(p);
+    }
+    fn push_front(&mut self, p: JkProgram) {
+        self.0.push_front(p);
+    }
+    fn pop_back(&mut self) -> Option<JkProgram> {
+        self.0.pop_back()
+    }
+    fn pop_front(&mut self) -> Option<JkProgram> {
+        self.0.pop_front()
+    }
+    fn size(&self) -> usize {
+        self.0.len()
+    }
 }
 
 impl fmt::Display for JkList {
@@ -98,10 +117,10 @@ fn parse(input: &str) -> Result<JkQueue, &str> {
     let pest_output = JkParser::parse(Rule::input, input);
     match pest_output {
         Ok(mut checked_output) => {
-            let mut res: JkQueue = JkList(vec![]);
+            let mut res: JkQueue = JkList(VecDeque::new());
             for program in checked_output.next().unwrap().into_inner() {
                 for p in program.into_inner() {
-                    res.0.push(from_parse_result(p));
+                    res.push_back(from_parse_result(p));
                 }
             }
             Ok(res)
@@ -117,5 +136,33 @@ fn main() {
     match parse("1 2 add 3 sub false true [1 2 false]") {
         Ok(res) => println!("{}", res),
         Err(msg) => println!("{}", msg),
+    }
+}
+
+
+
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_basic_parse() {
+        match parse("1 2 add 3 sub false true [1 2 false]") {
+            Ok(res) => (),
+            Err(err) => panic!("parse error: {}", err),
+        }
+    }
+
+    #[test]
+    fn test_word_parse() {
+        let mut res = parse("word2").unwrap();
+        assert_eq!(res.size(), 1);
+        match res.pop_front() {
+            Some(JkWord(w)) => assert_eq!(w, "word2"),
+            None => panic!("parse error"),
+            _ => panic!("parse error"),
+        }
+
     }
 }
