@@ -57,6 +57,9 @@ struct JkFiber {
 }
 
 impl JkList {
+    fn new() -> JkList {
+        JkList(VecDeque::new())
+    }
     fn push_back(&mut self, p: JkProgram) {
         self.0.push_back(p);
     }
@@ -119,7 +122,7 @@ fn parse(input: &str) -> Result<JkQueue, &str> {
     let pest_output = JkParser::parse(Rule::input, input);
     match pest_output {
         Ok(mut checked_output) => {
-            let mut res: JkQueue = JkList(VecDeque::new());
+            let mut res: JkQueue = JkQueue::new();
             for program in checked_output.next().unwrap().into_inner() {
                 for p in program.into_inner() {
                     res.push_back(from_parse_result(p));
