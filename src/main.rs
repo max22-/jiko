@@ -149,7 +149,7 @@ mod tests {
     #[test]
     fn test_basic_parse() {
         match parse("1 2 add 3 sub false true [1 2 false]") {
-            Ok(res) => (),
+            Ok(_) => (),
             Err(err) => panic!("parse error: {}", err),
         }
     }
