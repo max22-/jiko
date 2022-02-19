@@ -6,15 +6,18 @@ use std::collections::HashMap;
 use std::collections::VecDeque;
 use std::fmt;
 
+type BuiltinWord = fn(&mut JkFiber) -> Result<(), JkError>;
+
+#[derive(Clone)]
 enum JkProgram {
-    JkBuiltin(fn(&mut JkFiber)),
+    JkBuiltin(BuiltinWord),
     JkInt(i64),
     JkFloat(f64),
     JkBool(bool),
     JkChar(char),
     JkWord(String),
     JkString(String),
-    JkQuotation(Vec<JkProgram>),
+    JkQuotation(JkList),
 }
 
 use JkProgram::*;
@@ -29,26 +32,16 @@ impl fmt::Display for JkProgram {
             JkChar(c) => write!(f, "'{}'", c),
             JkWord(w) => write!(f, "{}", w),
             JkString(s) => write!(f, "\"{}\"", s),
-            JkQuotation(q) => {
-                write!(f, "[")?;
-                write!(
-                    f,
-                    "{}",
-                    q.iter()
-                        .map(|p| p.to_string())
-                        .collect::<Vec<String>>()
-                        .join(", ")
-                )?;
-                write!(f, "]")
-            }
+            JkQuotation(q) => write!(f, "{}", q),
         }
     }
 }
 
+#[derive(Clone)]
 struct JkList(VecDeque<JkProgram>);
 type JkStack = JkList;
 type JkQueue = JkList;
-type JkDict = HashMap<String, JkProgram>;
+type JkDict = HashMap<String, JkList>;
 struct JkFiber {
     stack: JkStack,
     queue: JkQueue,
@@ -65,6 +58,10 @@ impl JkList {
     }
     fn push_front(&mut self, p: JkProgram) {
         self.0.push_front(p);
+    }
+    fn prepend(&mut self, mut p: JkList) {
+        p.0.append(&mut self.0);
+        self.0 = p.0;
     }
     fn pop_back(&mut self) -> Option<JkProgram> {
         self.0.pop_back()
@@ -93,6 +90,21 @@ impl fmt::Display for JkList {
     }
 }
 
+impl JkFiber {
+    fn push(&mut self, p: JkProgram) {
+        self.stack.push_back(p);
+    }
+    fn pop(&mut self) -> Option<JkProgram> {
+        self.stack.pop_back()
+    }
+    fn pop_queue(&mut self) -> Option<JkProgram> {
+        self.queue.pop_front()
+    }
+    fn prepend_queue(&mut self, l: JkList) {
+        self.queue.prepend(l);
+    }
+}
+
 use pest::Parser;
 
 #[derive(Parser)]
@@ -106,9 +118,9 @@ fn from_parse_result(p: pest::iterators::Pair<Rule>) -> JkProgram {
         Rule::boolean => JkBool(p_str.parse::<bool>().unwrap()),
         Rule::word => JkWord(p_str.to_string()),
         Rule::quotation => {
-            let mut res: Vec<JkProgram> = vec![];
+            let mut res = JkList::new();
             for p2 in p_inner {
-                res.push(from_parse_result(p2));
+                res.push_back(from_parse_result(p2));
             }
             JkQuotation(res)
         }
@@ -137,11 +149,73 @@ fn parse(input: &str) -> Result<JkQueue, &str> {
     }
 }
 
+enum JkError {
+    StackUnDerflow,
+    TypeError,
+    UndefinedWord,
+}
+
+fn add(fiber: &mut JkFiber) -> Result<(), JkError> {
+    let b = fiber.pop();
+    let a = fiber.pop();
+    match (a, b) {
+        (Some(JkInt(a)), Some(JkInt(b))) => Ok(fiber.push(JkInt(a+b))),
+        (_, None) => Err(JkError::StackUnDerflow),
+        _ => Err(JkError::TypeError),
+    }
+}
+
+fn eval_atom(fiber: &mut JkFiber, p: JkProgram) -> Result<(), JkError> {
+    match p {
+        JkWord(w) => match fiber.dict.get(&w) {
+            Some(definition) => {
+                fiber.prepend_queue(definition.clone());
+                Ok(())
+            }
+            None => Err(JkError::UndefinedWord),
+        }
+        JkBuiltin(b) => b(fiber),
+        _ => {
+            fiber.push(p);
+            Ok(())
+        }
+
+    }
+}
+
+fn eval_step(fiber: &mut JkFiber) -> Result<(), JkError> {
+    let p = fiber.pop_queue();  
+    match p {
+        Some(p) => eval_atom(fiber, p),
+        None => Ok(()),
+    }
+}
+
 fn main() {
+    let mut fiber = JkFiber {
+        stack: JkStack::new(),
+        queue: JkQueue::new(),
+        dict: JkDict::from([("add".to_string(), JkList(VecDeque::from([JkBuiltin(add)])))]),
+        children: vec![],
+    };
+
     match parse("1 2 add 3 sub false true [1 2 false]") {
         Ok(res) => println!("{}", res),
         Err(msg) => println!("{}", msg),
     }
+
+    fiber.queue = parse("1 2 add").unwrap();
+    while fiber.queue.size() > 0 {
+        println!("stack: {}", fiber.stack);
+        println!("queue: {}", fiber.queue);
+        println!();
+        eval_step(&mut fiber);
+    }
+
+    println!("stack: {}", fiber.stack);
+    println!("queue: {}", fiber.queue);
+    println!();
+    
 }
 
 
@@ -168,6 +242,17 @@ mod tests {
             None => panic!("parse error"),
             _ => panic!("parse error"),
         }
-
     }
+
+    /* TODO
+    #[test]
+    fn test_jklist_prepend() {
+        let mut l1 = JkList(VecDeque::from([JkInt(1), JkInt(2), JkWord("+".to_string())]));
+        let l2 = JkList(VecDeque::from([JkInt(3), JkInt(4), JkWord("-".to_string())]));
+        l1.prepend(l2);
+        assert_eq!(l1, VecDeque::from([JkInt(3), JkInt(4), JkWord("-".to_string()), 
+            JkInt(1), JkInt(2), JkWord("+".to_string())]));
+        //println!("{}", l1);
+    }
+    */
 }
