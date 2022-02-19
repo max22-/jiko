@@ -5,6 +5,9 @@ extern crate pest_derive;
 use std::collections::HashMap;
 use std::collections::VecDeque;
 use std::fmt;
+use std::env;
+use std::io::{BufReader, BufRead};
+use std::fs::File;
 
 type BuiltinWord = fn(&mut JkFiber) -> Result<(), JkError>;
 
@@ -63,6 +66,9 @@ impl JkList {
         p.0.append(&mut self.0);
         self.0 = p.0;
     }
+    fn append(&mut self, mut p: JkList) {
+        self.0.append(&mut p.0);
+    }
     fn pop_back(&mut self) -> Option<JkProgram> {
         self.0.pop_back()
     }
@@ -102,6 +108,9 @@ impl JkFiber {
     }
     fn prepend_queue(&mut self, l: JkList) {
         self.queue.prepend(l);
+    }
+    fn append_queue(&mut self, l: JkList) {
+        self.queue.append(l);
     }
 }
 
@@ -149,7 +158,9 @@ fn parse(input: &str) -> Result<JkQueue, &str> {
     }
 }
 
+#[derive(Debug)]
 enum JkError {
+    FileNotFound,
     StackUnDerflow,
     TypeError,
     UndefinedWord,
@@ -191,7 +202,20 @@ fn eval_step(fiber: &mut JkFiber) -> Result<(), JkError> {
     }
 }
 
-fn main() {
+fn main() -> Result<(), JkError> {
+    let arg1 = env::args().nth(1);
+    let reader: Box<dyn BufRead> = match arg1 {
+        Some(filename) => {
+            let file = match File::open(filename) {
+                Ok(f) => f,
+                Err(_) => { return Err(JkError::FileNotFound); }
+            };
+            Box::new(BufReader::new(file))
+        }
+        None => Box::new(BufReader::new(std::io::stdin())),
+    };
+
+
     let mut fiber = JkFiber {
         stack: JkStack::new(),
         queue: JkQueue::new(),
@@ -199,23 +223,24 @@ fn main() {
         children: vec![],
     };
 
-    match parse("1 2 add 3 sub false true [1 2 false]") {
-        Ok(res) => println!("{}", res),
-        Err(msg) => println!("{}", msg),
+    for line in reader.lines() {
+        let unwrapped = line.unwrap();
+        let res = parse(&unwrapped);
+        match res {
+            Ok(parsed_line) => {
+                fiber.append_queue(parsed_line);
+            }
+            Err(msg) => {
+                println!("{}", msg);
+            }
+        }
+        while fiber.queue.size() > 0 {
+            println!("* stack: {}, queue: {}", fiber.stack, fiber.queue);
+            eval_step(&mut fiber);
+        }
+        println!("* stack: {}, queue: {}", fiber.stack, fiber.queue);
     }
-
-    fiber.queue = parse("1 2 add").unwrap();
-    while fiber.queue.size() > 0 {
-        println!("stack: {}", fiber.stack);
-        println!("queue: {}", fiber.queue);
-        println!();
-        eval_step(&mut fiber);
-    }
-
-    println!("stack: {}", fiber.stack);
-    println!("queue: {}", fiber.queue);
-    println!();
-    
+    Ok(())
 }
 
 
