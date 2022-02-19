@@ -171,7 +171,7 @@ fn add(fiber: &mut JkFiber) -> Result<(), JkError> {
     let a = fiber.pop();
     match (a, b) {
         (Some(JkInt(a)), Some(JkInt(b))) => Ok(fiber.push(JkInt(a+b))),
-        (_, None) => Err(JkError::StackUnderflow),
+        (None, _) => Err(JkError::StackUnderflow),
         _ => Err(JkError::TypeError),
     }
 }
@@ -236,7 +236,10 @@ fn main() -> Result<(), JkError> {
         }
         while fiber.queue.size() > 0 {
             println!("* stack: {}, queue: {}", fiber.stack, fiber.queue);
-            eval_step(&mut fiber);
+            match eval_step(&mut fiber) {
+                Ok(_) => (),
+                Err(jkerror) => println!("Error: {:?}", jkerror)
+            }
         }
         println!("* stack: {}, queue: {}", fiber.stack, fiber.queue);
     }
