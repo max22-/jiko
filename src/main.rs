@@ -4,10 +4,10 @@ extern crate pest_derive;
 
 use std::collections::HashMap;
 use std::collections::VecDeque;
-use std::fmt;
 use std::env;
-use std::io::{BufReader, BufRead};
+use std::fmt;
 use std::fs::File;
+use std::io::{BufRead, BufReader};
 
 type BuiltinWord = fn(&mut JkFiber) -> Result<(), JkError>;
 
@@ -170,7 +170,7 @@ fn add(fiber: &mut JkFiber) -> Result<(), JkError> {
     let b = fiber.pop();
     let a = fiber.pop();
     match (a, b) {
-        (Some(JkInt(a)), Some(JkInt(b))) => Ok(fiber.push(JkInt(a+b))),
+        (Some(JkInt(a)), Some(JkInt(b))) => Ok(fiber.push(JkInt(a + b))),
         (None, _) => Err(JkError::StackUnderflow),
         _ => Err(JkError::TypeError),
     }
@@ -184,18 +184,17 @@ fn eval_atom(fiber: &mut JkFiber, p: JkProgram) -> Result<(), JkError> {
                 Ok(())
             }
             None => Err(JkError::UndefinedWord),
-        }
+        },
         JkBuiltin(b) => b(fiber),
         _ => {
             fiber.push(p);
             Ok(())
         }
-
     }
 }
 
 fn eval_step(fiber: &mut JkFiber) -> Result<(), JkError> {
-    let p = fiber.pop_queue();  
+    let p = fiber.pop_queue();
     match p {
         Some(p) => eval_atom(fiber, p),
         None => Ok(()),
@@ -208,13 +207,14 @@ fn main() -> Result<(), JkError> {
         Some(filename) => {
             let file = match File::open(filename) {
                 Ok(f) => f,
-                Err(_) => { return Err(JkError::FileNotFound); }
+                Err(_) => {
+                    return Err(JkError::FileNotFound);
+                }
             };
             Box::new(BufReader::new(file))
         }
         None => Box::new(BufReader::new(std::io::stdin())),
     };
-
 
     let mut fiber = JkFiber {
         stack: JkStack::new(),
@@ -238,16 +238,13 @@ fn main() -> Result<(), JkError> {
             println!("* stack: {}, queue: {}", fiber.stack, fiber.queue);
             match eval_step(&mut fiber) {
                 Ok(_) => (),
-                Err(jkerror) => println!("Error: {:?}", jkerror)
+                Err(jkerror) => println!("Error: {:?}", jkerror),
             }
         }
         println!("* stack: {}, queue: {}", fiber.stack, fiber.queue);
     }
     Ok(())
 }
-
-
-
 
 #[cfg(test)]
 mod tests {
@@ -278,7 +275,7 @@ mod tests {
         let mut l1 = JkList(VecDeque::from([JkInt(1), JkInt(2), JkWord("+".to_string())]));
         let l2 = JkList(VecDeque::from([JkInt(3), JkInt(4), JkWord("-".to_string())]));
         l1.prepend(l2);
-        assert_eq!(l1, VecDeque::from([JkInt(3), JkInt(4), JkWord("-".to_string()), 
+        assert_eq!(l1, VecDeque::from([JkInt(3), JkInt(4), JkWord("-".to_string()),
             JkInt(1), JkInt(2), JkWord("+".to_string())]));
         //println!("{}", l1);
     }
