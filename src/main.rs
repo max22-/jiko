@@ -23,6 +23,33 @@ enum JkProgram {
     JkQuotation(JkList),
 }
 
+impl JkProgram {
+    fn as_builtin(&self) -> Result<BuiltinWord, JkError> {
+        match self {
+            JkBuiltin(b) => Ok(*b),
+            _ => Err(JkError::Expected("builtin".to_string()))
+        }
+    }
+    fn as_int(&self) -> Result<i64, JkError> {
+        match self {
+            JkInt(i) => Ok(*i),
+            _ => Err(JkError::Expected("integer".to_string()))
+        }
+    }
+    fn as_float(&self) -> Result<f64, JkError> {
+        match self {
+            JkFloat(f) => Ok(*f),
+            _ => Err(JkError::Expected("float".to_string()))
+        }
+    }
+    fn assert_number(&self) -> Result<(), JkError> {
+        match self {
+            JkBuiltin(_) => Ok(()),
+            _ => Err(JkError::Expected("builtin".to_string()))
+        }
+    }
+}
+
 use JkProgram::*;
 
 impl fmt::Display for JkProgram {
@@ -100,8 +127,8 @@ impl JkFiber {
     fn push(&mut self, p: JkProgram) {
         self.stack.push_back(p);
     }
-    fn pop(&mut self) -> Option<JkProgram> {
-        self.stack.pop_back()
+    fn pop(&mut self) -> Result<JkProgram, JkError> {
+        self.stack.pop_back().ok_or(JkError::StackUnderflow)
     }
     fn pop_queue(&mut self) -> Option<JkProgram> {
         self.queue.pop_front()
@@ -164,16 +191,14 @@ enum JkError {
     StackUnderflow,
     TypeError,
     UndefinedWord,
+    Expected(String),
 }
 
 fn add(fiber: &mut JkFiber) -> Result<(), JkError> {
-    let b = fiber.pop();
-    let a = fiber.pop();
-    match (a, b) {
-        (Some(JkInt(a)), Some(JkInt(b))) => Ok(fiber.push(JkInt(a + b))),
-        (None, _) => Err(JkError::StackUnderflow),
-        _ => Err(JkError::TypeError),
-    }
+    let b = fiber.pop()?.as_int()?;
+    let a = fiber.pop()?.as_int()?;
+    fiber.push(JkInt(a + b));
+    Ok(())
 }
 
 fn eval_atom(fiber: &mut JkFiber, p: JkProgram) -> Result<(), JkError> {
