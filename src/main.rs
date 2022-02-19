@@ -89,6 +89,11 @@ impl JkList {
     fn new() -> JkList {
         JkList(VecDeque::new())
     }
+    fn from_program(p: JkProgram) -> JkList {
+        let mut res = JkList::new();
+        res.push_back(p);
+        res
+    }
     fn push_back(&mut self, p: JkProgram) {
         self.0.push_back(p);
     }
@@ -229,6 +234,12 @@ fn swap(fiber: &mut JkFiber) -> Result<(), JkError> {
     Ok(())
 }
 
+fn quote(fiber: &mut JkFiber) -> Result<(), JkError> {
+    let p = fiber.pop()?;
+    fiber.push(JkQuotation(JkList::from_program(p)));
+    Ok(())
+}
+
 fn apply(fiber: &mut JkFiber) -> Result<(), JkError> {
     let q = fiber.pop()?.as_list()?;
     fiber.prepend_queue(q);
@@ -279,11 +290,12 @@ fn main() -> Result<(), JkError> {
         stack: JkStack::new(),
         queue: JkQueue::new(),
         dict: JkDict::from([
-            ("add".to_string(), JkList(VecDeque::from([JkBuiltin(add)]))),
-            ("sub".to_string(), JkList(VecDeque::from([JkBuiltin(sub)]))),
-            ("dup".to_string(), JkList(VecDeque::from([JkBuiltin(dup)]))),
-            ("swap".to_string(), JkList(VecDeque::from([JkBuiltin(swap)]))),
-            ("i".to_string(), JkList(VecDeque::from([JkBuiltin(apply)]))),
+            ("add".to_string(), JkList::from_program(JkBuiltin(add))),
+            ("sub".to_string(), JkList::from_program(JkBuiltin(sub))),
+            ("dup".to_string(), JkList::from_program(JkBuiltin(dup))),
+            ("swap".to_string(), JkList::from_program(JkBuiltin(swap))),
+            ("quote".to_string(), JkList::from_program(JkBuiltin(quote))),
+            ("i".to_string(), JkList::from_program(JkBuiltin(apply))),
         ]),
         children: vec![],
     };
