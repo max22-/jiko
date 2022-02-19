@@ -214,6 +214,13 @@ fn sub(fiber: &mut JkFiber) -> Result<(), JkError> {
     Ok(())
 }
 
+fn dup(fiber: &mut JkFiber) -> Result<(), JkError> {
+    let p = fiber.pop()?;
+    fiber.push(p.clone());
+    fiber.push(p);
+    Ok(())
+}
+
 fn apply(fiber: &mut JkFiber) -> Result<(), JkError> {
     let q = fiber.pop()?.as_list()?;
     fiber.prepend_queue(q);
@@ -266,6 +273,7 @@ fn main() -> Result<(), JkError> {
         dict: JkDict::from([
             ("add".to_string(), JkList(VecDeque::from([JkBuiltin(add)]))),
             ("sub".to_string(), JkList(VecDeque::from([JkBuiltin(sub)]))),
+            ("dup".to_string(), JkList(VecDeque::from([JkBuiltin(dup)]))),
             ("i".to_string(), JkList(VecDeque::from([JkBuiltin(apply)]))),
         ]),
         children: vec![],
