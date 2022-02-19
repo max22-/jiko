@@ -201,6 +201,13 @@ fn add(fiber: &mut JkFiber) -> Result<(), JkError> {
     Ok(())
 }
 
+fn sub(fiber: &mut JkFiber) -> Result<(), JkError> {
+    let b = fiber.pop()?.as_int()?;
+    let a = fiber.pop()?.as_int()?;
+    fiber.push(JkInt(a - b));
+    Ok(())
+}
+
 fn eval_atom(fiber: &mut JkFiber, p: JkProgram) -> Result<(), JkError> {
     match p {
         JkWord(w) => match fiber.dict.get(&w) {
@@ -244,7 +251,10 @@ fn main() -> Result<(), JkError> {
     let mut fiber = JkFiber {
         stack: JkStack::new(),
         queue: JkQueue::new(),
-        dict: JkDict::from([("add".to_string(), JkList(VecDeque::from([JkBuiltin(add)])))]),
+        dict: JkDict::from([
+            ("add".to_string(), JkList(VecDeque::from([JkBuiltin(add)]))),
+            ("sub".to_string(), JkList(VecDeque::from([JkBuiltin(sub)]))),
+        ]),
         children: vec![],
     };
 
