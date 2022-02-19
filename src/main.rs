@@ -221,6 +221,14 @@ fn dup(fiber: &mut JkFiber) -> Result<(), JkError> {
     Ok(())
 }
 
+fn swap(fiber: &mut JkFiber) -> Result<(), JkError> {
+    let b = fiber.pop()?;
+    let a = fiber.pop()?;
+    fiber.push(b);
+    fiber.push(a);
+    Ok(())
+}
+
 fn apply(fiber: &mut JkFiber) -> Result<(), JkError> {
     let q = fiber.pop()?.as_list()?;
     fiber.prepend_queue(q);
@@ -274,6 +282,7 @@ fn main() -> Result<(), JkError> {
             ("add".to_string(), JkList(VecDeque::from([JkBuiltin(add)]))),
             ("sub".to_string(), JkList(VecDeque::from([JkBuiltin(sub)]))),
             ("dup".to_string(), JkList(VecDeque::from([JkBuiltin(dup)]))),
+            ("swap".to_string(), JkList(VecDeque::from([JkBuiltin(swap)]))),
             ("i".to_string(), JkList(VecDeque::from([JkBuiltin(apply)]))),
         ]),
         children: vec![],
