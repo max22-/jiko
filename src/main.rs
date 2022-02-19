@@ -161,7 +161,7 @@ fn parse(input: &str) -> Result<JkQueue, &str> {
 #[derive(Debug)]
 enum JkError {
     FileNotFound,
-    StackUnDerflow,
+    StackUnderflow,
     TypeError,
     UndefinedWord,
 }
@@ -171,7 +171,7 @@ fn add(fiber: &mut JkFiber) -> Result<(), JkError> {
     let a = fiber.pop();
     match (a, b) {
         (Some(JkInt(a)), Some(JkInt(b))) => Ok(fiber.push(JkInt(a+b))),
-        (_, None) => Err(JkError::StackUnDerflow),
+        (_, None) => Err(JkError::StackUnderflow),
         _ => Err(JkError::TypeError),
     }
 }
