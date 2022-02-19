@@ -48,6 +48,12 @@ impl JkProgram {
             _ => Err(JkError::Expected("builtin".to_string()))
         }
     }
+    fn as_list(self) -> Result<JkList, JkError> {
+        match self {
+            JkQuotation(q) => Ok(q),
+            _ => Err(JkError::Expected("quotation".to_string()))
+        }
+    }
 }
 
 use JkProgram::*;
@@ -208,6 +214,12 @@ fn sub(fiber: &mut JkFiber) -> Result<(), JkError> {
     Ok(())
 }
 
+fn apply(fiber: &mut JkFiber) -> Result<(), JkError> {
+    let q = fiber.pop()?.as_list()?;
+    fiber.prepend_queue(q);
+    Ok(())
+}
+
 fn eval_atom(fiber: &mut JkFiber, p: JkProgram) -> Result<(), JkError> {
     match p {
         JkWord(w) => match fiber.dict.get(&w) {
@@ -254,6 +266,7 @@ fn main() -> Result<(), JkError> {
         dict: JkDict::from([
             ("add".to_string(), JkList(VecDeque::from([JkBuiltin(add)]))),
             ("sub".to_string(), JkList(VecDeque::from([JkBuiltin(sub)]))),
+            ("i".to_string(), JkList(VecDeque::from([JkBuiltin(apply)]))),
         ]),
         children: vec![],
     };
