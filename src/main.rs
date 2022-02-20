@@ -24,21 +24,21 @@ enum JkProgram {
 }
 
 impl JkProgram {
-    fn as_builtin(&self) -> Result<BuiltinWord, JkError> {
+    fn as_builtin(self) -> Result<BuiltinWord, JkError> {
         match self {
-            JkBuiltin(b) => Ok(*b),
+            JkBuiltin(b) => Ok(b),
             _ => Err(JkError::Expected("builtin".to_string()))
         }
     }
-    fn as_int(&self) -> Result<i64, JkError> {
+    fn as_int(self) -> Result<i64, JkError> {
         match self {
-            JkInt(i) => Ok(*i),
+            JkInt(i) => Ok(i),
             _ => Err(JkError::Expected("integer".to_string()))
         }
     }
-    fn as_float(&self) -> Result<f64, JkError> {
+    fn as_float(self) -> Result<f64, JkError> {
         match self {
-            JkFloat(f) => Ok(*f),
+            JkFloat(f) => Ok(f),
             _ => Err(JkError::Expected("float".to_string()))
         }
     }
