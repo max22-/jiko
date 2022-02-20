@@ -234,6 +234,11 @@ fn swap(fiber: &mut JkFiber) -> Result<(), JkError> {
     Ok(())
 }
 
+fn drop(fiber: &mut JkFiber) -> Result<(), JkError> {
+    fiber.pop()?;
+    Ok(())
+}
+
 fn quote(fiber: &mut JkFiber) -> Result<(), JkError> {
     let p = fiber.pop()?;
     fiber.push(JkQuotation(JkList::from_program(p)));
@@ -294,6 +299,7 @@ fn main() -> Result<(), JkError> {
             ("sub".to_string(), JkList::from_program(JkBuiltin(sub))),
             ("dup".to_string(), JkList::from_program(JkBuiltin(dup))),
             ("swap".to_string(), JkList::from_program(JkBuiltin(swap))),
+            ("drop".to_string(), JkList::from_program(JkBuiltin(drop))),
             ("quote".to_string(), JkList::from_program(JkBuiltin(quote))),
             ("i".to_string(), JkList::from_program(JkBuiltin(apply))),
         ]),
