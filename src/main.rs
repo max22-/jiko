@@ -245,6 +245,14 @@ fn quote(fiber: &mut JkFiber) -> Result<(), JkError> {
     Ok(())
 }
 
+fn cat(fiber: &mut JkFiber) -> Result<(), JkError> {
+    let b = fiber.pop()?.as_list()?;
+    let mut a = fiber.pop()?.as_list()?;
+    a.append(b);
+    fiber.push(JkQuotation(a));
+    Ok(())
+}
+
 fn apply(fiber: &mut JkFiber) -> Result<(), JkError> {
     let q = fiber.pop()?.as_list()?;
     fiber.prepend_queue(q);
@@ -301,6 +309,7 @@ fn main() -> Result<(), JkError> {
             ("swap".to_string(), JkList::from_program(JkBuiltin(swap))),
             ("drop".to_string(), JkList::from_program(JkBuiltin(drop))),
             ("quote".to_string(), JkList::from_program(JkBuiltin(quote))),
+            ("cat".to_string(), JkList::from_program(JkBuiltin(cat))),
             ("i".to_string(), JkList::from_program(JkBuiltin(apply))),
         ]),
         children: vec![],
