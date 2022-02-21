@@ -42,10 +42,22 @@ impl JkProgram {
             _ => Err(JkError::Expected("float".to_string()))
         }
     }
-    fn assert_number(&self) -> Result<(), JkError> {
+    fn assert_number(self) -> Result<JkProgram, JkError> {
         match self {
-            JkBuiltin(_) => Ok(()),
+            JkBuiltin(_) => Ok(self),
             _ => Err(JkError::Expected("builtin".to_string()))
+        }
+    }
+    fn word_as_string(self) -> Result<String, JkError> {
+        match self {
+            JkWord(w) => Ok(w),
+            _ => Err(JkError::Expected("word".to_string()))
+        }
+    }
+    fn as_string(self) -> Result<String, JkError> {
+        match self {
+            JkString(s) => Ok(s),
+            _ => Err(JkError::Expected("string".to_string()))
         }
     }
     fn as_list(self) -> Result<JkList, JkError> {
@@ -259,6 +271,14 @@ fn apply(fiber: &mut JkFiber) -> Result<(), JkError> {
     Ok(())
 }
 
+fn def(fiber: &mut JkFiber) -> Result<(), JkError> {
+    let mut name = fiber.pop()?.as_list()?;
+    let definition = fiber.pop()?.as_list()?;
+    if name.size() != 1 { return Err(JkError::TypeError) };
+    fiber.dict.insert(name.pop_front().unwrap().word_as_string()?, definition);
+    Ok(())
+}
+
 fn eval_atom(fiber: &mut JkFiber, p: JkProgram) -> Result<(), JkError> {
     match p {
         JkWord(w) => match fiber.dict.get(&w) {
@@ -311,6 +331,7 @@ fn main() -> Result<(), JkError> {
             ("quote".to_string(), JkList::from_program(JkBuiltin(quote))),
             ("cat".to_string(), JkList::from_program(JkBuiltin(cat))),
             ("i".to_string(), JkList::from_program(JkBuiltin(apply))),
+            ("def".to_string(), JkList::from_program(JkBuiltin(def))),
         ]),
         children: vec![],
     };
