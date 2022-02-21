@@ -44,8 +44,9 @@ impl JkProgram {
     }
     fn assert_number(self) -> Result<JkProgram, JkError> {
         match self {
-            JkBuiltin(_) => Ok(self),
-            _ => Err(JkError::Expected("builtin".to_string())),
+            JkInt(_) => Ok(self),
+            JkFloat(_) => Ok(self),
+            _ => Err(JkError::Expected("number".to_string())),
         }
     }
     fn as_boolean(self) -> Result<bool, JkError> {
