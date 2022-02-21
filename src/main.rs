@@ -48,6 +48,12 @@ impl JkProgram {
             _ => Err(JkError::Expected("builtin".to_string()))
         }
     }
+    fn as_boolean(self) -> Result<bool, JkError> {
+        match self {
+            JkBool(b) => Ok(b),
+            _ => Err(JkError::Expected("boolean".to_string()))
+        }
+    }
     fn word_as_string(self) -> Result<String, JkError> {
         match self {
             JkWord(w) => Ok(w),
@@ -275,6 +281,19 @@ fn apply(fiber: &mut JkFiber) -> Result<(), JkError> {
     Ok(())
 }
 
+fn ifte(fiber: &mut JkFiber) -> Result<(), JkError> {
+    let else_part = fiber.pop()?.as_list()?;
+    let then_part = fiber.pop()?.as_list()?;
+    let cond = fiber.pop()?.as_boolean()?;
+    if cond {
+        fiber.prepend_queue(then_part);
+        Ok(())
+    } else {
+        fiber.prepend_queue(else_part);
+        Ok(())
+    }
+}
+
 fn def(fiber: &mut JkFiber) -> Result<(), JkError> {
     let mut name = fiber.pop()?.as_list()?;
     let definition = fiber.pop()?.as_list()?;
@@ -353,6 +372,7 @@ fn main() -> Result<(), JkError> {
             ("quote".to_string(), JkList::from_program(JkBuiltin(quote))),
             ("cat".to_string(), JkList::from_program(JkBuiltin(cat))),
             ("i".to_string(), JkList::from_program(JkBuiltin(apply))),
+            ("ifte".to_string(), JkList::from_program(JkBuiltin(ifte))),
             ("def".to_string(), JkList::from_program(JkBuiltin(def))),
             ("load".to_string(), JkList::from_program(JkBuiltin(load))),
         ]),
