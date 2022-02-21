@@ -1,7 +1,10 @@
-WHITESPACE = _{ " " }
+WHITESPACE = _{ " " | "\n" | "\r" | "\t" }
 integer = @{ "-"? ~ ASCII_DIGIT+ }
 boolean = @{ "true" | "false" }
 word = @{ !boolean ~ ASCII_ALPHANUMERIC+ }
+string = ${ "\"" ~ string_inner ~ "\"" }
+string_inner = @{ string_char* }
+string_char = { !"\"" ~ ANY }
 quotation = { "[" ~ program* ~ "]" }
-program = { integer | boolean | word | quotation }
+program = { integer | boolean | word | string | quotation }
 input = { SOI ~ program* ~ EOI }

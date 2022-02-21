@@ -176,6 +176,8 @@ fn from_parse_result(p: pest::iterators::Pair<Rule>) -> JkProgram {
         Rule::integer => JkInt(p_str.parse::<i64>().unwrap()),
         Rule::boolean => JkBool(p_str.parse::<bool>().unwrap()),
         Rule::word => JkWord(p_str.to_string()),
+        Rule::string => from_parse_result(p_inner.next().unwrap()),
+        Rule::string_inner => JkString(p_str.to_string()),
         Rule::quotation => {
             let mut res = JkList::new();
             for p2 in p_inner {
@@ -189,7 +191,7 @@ fn from_parse_result(p: pest::iterators::Pair<Rule>) -> JkProgram {
     }
 }
 
-fn parse(input: &str) -> Result<JkQueue, &str> {
+fn parse(input: &str) -> Result<JkQueue, JkError> {
     let pest_output = JkParser::parse(Rule::input, input);
     match pest_output {
         Ok(mut checked_output) => {
@@ -203,18 +205,20 @@ fn parse(input: &str) -> Result<JkQueue, &str> {
         }
         Err(err) => {
             println!("{:?}", err);
-            Err("Parse error")
+            Err(JkError::ParseError)
         }
     }
 }
 
 #[derive(Debug)]
 enum JkError {
+    ParseError,
     FileNotFound,
     StackUnderflow,
     TypeError,
     UndefinedWord,
     Expected(String),
+    RuntimeError(String),
 }
 
 fn add(fiber: &mut JkFiber) -> Result<(), JkError> {
@@ -279,6 +283,24 @@ fn def(fiber: &mut JkFiber) -> Result<(), JkError> {
     Ok(())
 }
 
+fn load(fiber: &mut JkFiber) -> Result<(), JkError> {
+    use std::io::prelude::*;
+    let filepath = fiber.pop()?.as_string()?;
+    let mut file = match File::open(&filepath) {
+        Ok(file) => file,
+        Err(_) => { return Err(JkError::FileNotFound); }
+    };
+    let mut s = String::new();
+    match file.read_to_string(&mut s) {
+        Ok(_) => {
+            fiber.append_queue(parse(&s)?);
+            Ok(())
+        }
+        Err(_) => Err(JkError::RuntimeError(format!("Couldn't load file \"{}\"", filepath)))
+    }
+
+}
+
 fn eval_atom(fiber: &mut JkFiber, p: JkProgram) -> Result<(), JkError> {
     match p {
         JkWord(w) => match fiber.dict.get(&w) {
@@ -332,6 +354,7 @@ fn main() -> Result<(), JkError> {
             ("cat".to_string(), JkList::from_program(JkBuiltin(cat))),
             ("i".to_string(), JkList::from_program(JkBuiltin(apply))),
             ("def".to_string(), JkList::from_program(JkBuiltin(def))),
+            ("load".to_string(), JkList::from_program(JkBuiltin(load))),
         ]),
         children: vec![],
     };
@@ -343,8 +366,8 @@ fn main() -> Result<(), JkError> {
             Ok(parsed_line) => {
                 fiber.append_queue(parsed_line);
             }
-            Err(msg) => {
-                println!("{}", msg);
+            Err(jkerror) => {
+                println!("{:?}", jkerror);
             }
         }
         while fiber.queue.size() > 0 {
@@ -367,7 +390,7 @@ mod tests {
     fn test_basic_parse() {
         match parse("1 2 add 3 sub false true [1 2 false]") {
             Ok(_) => (),
-            Err(err) => panic!("parse error: {}", err),
+            Err(jkerror) => panic!("parse error: {:?}", jkerror),
         }
     }
 
