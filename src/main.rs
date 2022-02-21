@@ -27,49 +27,49 @@ impl JkProgram {
     fn as_builtin(self) -> Result<BuiltinWord, JkError> {
         match self {
             JkBuiltin(b) => Ok(b),
-            _ => Err(JkError::Expected("builtin".to_string()))
+            _ => Err(JkError::Expected("builtin".to_string())),
         }
     }
     fn as_int(self) -> Result<i64, JkError> {
         match self {
             JkInt(i) => Ok(i),
-            _ => Err(JkError::Expected("integer".to_string()))
+            _ => Err(JkError::Expected("integer".to_string())),
         }
     }
     fn as_float(self) -> Result<f64, JkError> {
         match self {
             JkFloat(f) => Ok(f),
-            _ => Err(JkError::Expected("float".to_string()))
+            _ => Err(JkError::Expected("float".to_string())),
         }
     }
     fn assert_number(self) -> Result<JkProgram, JkError> {
         match self {
             JkBuiltin(_) => Ok(self),
-            _ => Err(JkError::Expected("builtin".to_string()))
+            _ => Err(JkError::Expected("builtin".to_string())),
         }
     }
     fn as_boolean(self) -> Result<bool, JkError> {
         match self {
             JkBool(b) => Ok(b),
-            _ => Err(JkError::Expected("boolean".to_string()))
+            _ => Err(JkError::Expected("boolean".to_string())),
         }
     }
     fn word_as_string(self) -> Result<String, JkError> {
         match self {
             JkWord(w) => Ok(w),
-            _ => Err(JkError::Expected("word".to_string()))
+            _ => Err(JkError::Expected("word".to_string())),
         }
     }
     fn as_string(self) -> Result<String, JkError> {
         match self {
             JkString(s) => Ok(s),
-            _ => Err(JkError::Expected("string".to_string()))
+            _ => Err(JkError::Expected("string".to_string())),
         }
     }
     fn as_list(self) -> Result<JkList, JkError> {
         match self {
             JkQuotation(q) => Ok(q),
-            _ => Err(JkError::Expected("quotation".to_string()))
+            _ => Err(JkError::Expected("quotation".to_string())),
         }
     }
 }
@@ -297,8 +297,12 @@ fn ifte(fiber: &mut JkFiber) -> Result<(), JkError> {
 fn def(fiber: &mut JkFiber) -> Result<(), JkError> {
     let mut name = fiber.pop()?.as_list()?;
     let definition = fiber.pop()?.as_list()?;
-    if name.size() != 1 { return Err(JkError::TypeError) };
-    fiber.dict.insert(name.pop_front().unwrap().word_as_string()?, definition);
+    if name.size() != 1 {
+        return Err(JkError::TypeError);
+    };
+    fiber
+        .dict
+        .insert(name.pop_front().unwrap().word_as_string()?, definition);
     Ok(())
 }
 
@@ -307,7 +311,9 @@ fn load(fiber: &mut JkFiber) -> Result<(), JkError> {
     let filepath = fiber.pop()?.as_string()?;
     let mut file = match File::open(&filepath) {
         Ok(file) => file,
-        Err(_) => { return Err(JkError::FileNotFound); }
+        Err(_) => {
+            return Err(JkError::FileNotFound);
+        }
     };
     let mut s = String::new();
     match file.read_to_string(&mut s) {
@@ -315,9 +321,11 @@ fn load(fiber: &mut JkFiber) -> Result<(), JkError> {
             fiber.append_queue(parse(&s)?);
             Ok(())
         }
-        Err(_) => Err(JkError::RuntimeError(format!("Couldn't load file \"{}\"", filepath)))
+        Err(_) => Err(JkError::RuntimeError(format!(
+            "Couldn't load file \"{}\"",
+            filepath
+        ))),
     }
-
 }
 
 fn eval_atom(fiber: &mut JkFiber, p: JkProgram) -> Result<(), JkError> {
