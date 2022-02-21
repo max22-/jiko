@@ -180,6 +180,7 @@ fn from_parse_result(p: pest::iterators::Pair<Rule>) -> JkProgram {
     let (p_rule, p_str, mut p_inner) = (p.as_rule(), p.as_str(), p.into_inner());
     match p_rule {
         Rule::integer => JkInt(p_str.parse::<i64>().unwrap()),
+        Rule::float => JkFloat(p_str.parse::<f64>().unwrap()),
         Rule::boolean => JkBool(p_str.parse::<bool>().unwrap()),
         Rule::word => JkWord(p_str.to_string()),
         Rule::string => from_parse_result(p_inner.next().unwrap()),

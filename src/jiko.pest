@@ -1,4 +1,5 @@
 WHITESPACE = _{ " " | "\n" | "\r" | "\t" }
+float = @{ "-"? ~ ASCII_DIGIT+ ~ "." ~ ASCII_DIGIT+ }
 integer = @{ "-"? ~ ASCII_DIGIT+ }
 boolean = @{ "true" | "false" }
 word = @{ !boolean ~ ASCII_ALPHANUMERIC+ }
@@ -6,5 +7,5 @@ string = ${ "\"" ~ string_inner ~ "\"" }
 string_inner = @{ string_char* }
 string_char = { !"\"" ~ ANY }
 quotation = { "[" ~ program* ~ "]" }
-program = { integer | boolean | word | string | quotation }
+program = { float | integer | boolean | word | string | quotation }
 input = { SOI ~ program* ~ EOI }
