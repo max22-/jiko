@@ -399,13 +399,13 @@ fn main() -> Result<(), JkError> {
             }
         }
         while fiber.queue.size() > 0 {
-            println!("* stack: {}, queue: {}", fiber.stack, fiber.queue);
+            println!("* {} : {}", fiber.stack, fiber.queue);
             match eval_step(&mut fiber) {
                 Ok(_) => (),
                 Err(jkerror) => println!("Error: {:?}", jkerror),
             }
         }
-        println!("* stack: {}, queue: {}", fiber.stack, fiber.queue);
+        println!("* {} : {}", fiber.stack, fiber.queue);
     }
     Ok(())
 }
