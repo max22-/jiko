@@ -241,6 +241,27 @@ fn sub(fiber: &mut JkFiber) -> Result<(), JkError> {
     Ok(())
 }
 
+fn mul(fiber: &mut JkFiber) -> Result<(), JkError> {
+    let b = fiber.pop()?.as_int()?;
+    let a = fiber.pop()?.as_int()?;
+    fiber.push(JkInt(a * b));
+    Ok(())
+}
+
+fn div(fiber: &mut JkFiber) -> Result<(), JkError> {
+    let b = fiber.pop()?.as_int()?;
+    let a = fiber.pop()?.as_int()?;
+    fiber.push(JkInt(a / b));
+    Ok(())
+}
+
+fn modulus(fiber: &mut JkFiber) -> Result<(), JkError> {
+    let b = fiber.pop()?.as_int()?;
+    let a = fiber.pop()?.as_int()?;
+    fiber.push(JkInt(a % b));
+    Ok(())
+}
+
 fn dup(fiber: &mut JkFiber) -> Result<(), JkError> {
     let p = fiber.pop()?;
     fiber.push(p.clone());
@@ -374,6 +395,9 @@ fn main() -> Result<(), JkError> {
         dict: JkDict::from([
             ("add".to_string(), JkList::from_program(JkBuiltin(add))),
             ("sub".to_string(), JkList::from_program(JkBuiltin(sub))),
+            ("mul".to_string(), JkList::from_program(JkBuiltin(mul))),
+            ("div".to_string(), JkList::from_program(JkBuiltin(div))),
+            ("mod".to_string(), JkList::from_program(JkBuiltin(modulus))),
             ("dup".to_string(), JkList::from_program(JkBuiltin(dup))),
             ("swap".to_string(), JkList::from_program(JkBuiltin(swap))),
             ("drop".to_string(), JkList::from_program(JkBuiltin(drop))),
