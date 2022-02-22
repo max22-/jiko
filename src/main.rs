@@ -321,14 +321,13 @@ fn ifte(fiber: &mut JkFiber) -> Result<(), JkError> {
 }
 
 fn def(fiber: &mut JkFiber) -> Result<(), JkError> {
-    let mut name = fiber.pop()?.as_list()?;
-    let definition = fiber.pop()?.as_list()?;
-    if name.size() != 1 {
-        return Err(JkError::TypeError);
-    };
-    fiber
-        .dict
-        .insert(name.pop_front().unwrap().word_as_string()?, definition);
+    let mut names = fiber.pop()?.as_list()?;
+
+    while names.size() > 0 {
+        let name = names.pop_back().unwrap().word_as_string()?;
+        let definition = fiber.pop()?.as_list()?;
+        fiber.dict.insert(name, definition);
+    }
     Ok(())
 }
 
