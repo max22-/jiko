@@ -353,6 +353,13 @@ fn load(fiber: &mut JkFiber) -> Result<(), JkError> {
     }
 }
 
+fn eq(fiber: &mut JkFiber) -> Result<(), JkError> {
+    let b = fiber.pop()?.as_int()?;
+    let a = fiber.pop()?.as_int()?;
+    fiber.push(JkBool(a==b));
+    Ok(())
+}
+
 fn eval_atom(fiber: &mut JkFiber, p: JkProgram) -> Result<(), JkError> {
     match p {
         JkWord(w) => match fiber.dict.get(&w) {
@@ -411,6 +418,7 @@ fn main() -> Result<(), JkError> {
             ("ifte".to_string(), JkList::from_program(JkBuiltin(ifte))),
             ("def".to_string(), JkList::from_program(JkBuiltin(def))),
             ("load".to_string(), JkList::from_program(JkBuiltin(load))),
+            ("eq".to_string(), JkList::from_program(JkBuiltin(eq))),
         ]),
         children: vec![],
     };

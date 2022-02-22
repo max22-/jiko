@@ -1,0 +1,1 @@
+[ dup 0 eq [drop 1] [dup 1 sub fact mul] ifte ] [fact] def
