@@ -360,6 +360,40 @@ fn eq(fiber: &mut JkFiber) -> Result<(), JkError> {
     Ok(())
 }
 
+fn cons(fiber: &mut JkFiber) -> Result<(), JkError> {
+    let mut q = fiber.pop()?.as_list()?;
+    let a = fiber.pop()?;
+    q.push_front(a);
+    fiber.push(JkQuotation(q));
+    Ok(())
+}
+
+fn head(fiber: &mut JkFiber) -> Result<(), JkError> {
+    let mut q = fiber.pop()?.as_list()?;
+    let res = q.pop_front().ok_or(JkError::RuntimeError("[] head".to_string()))?;
+    fiber.push(res);
+    Ok(())
+}
+
+fn tail(fiber: &mut JkFiber) -> Result<(), JkError> {
+    let mut q = fiber.pop()?.as_list()?;
+    q.pop_front().ok_or(JkError::RuntimeError("[] tail".to_string()))?;
+    fiber.push(JkQuotation(q));
+    Ok(())
+}
+
+fn empty(fiber: &mut JkFiber) -> Result<(), JkError> {
+    let q = fiber.pop()?.as_list()?;
+    fiber.push(JkBool(q.size() == 0));
+    Ok(())
+}
+
+fn reset(fiber: &mut JkFiber) -> Result<(), JkError> {
+    fiber.stack = JkStack::new();
+    fiber.queue = JkQueue::new();
+    Ok(())
+}
+
 fn eval_atom(fiber: &mut JkFiber, p: JkProgram) -> Result<(), JkError> {
     match p {
         JkWord(w) => match fiber.dict.get(&w) {
@@ -419,6 +453,11 @@ fn main() -> Result<(), JkError> {
             ("def".to_string(), JkList::from_program(JkBuiltin(def))),
             ("load".to_string(), JkList::from_program(JkBuiltin(load))),
             ("eq".to_string(), JkList::from_program(JkBuiltin(eq))),
+            ("cons".to_string(), JkList::from_program(JkBuiltin(cons))),
+            ("head".to_string(), JkList::from_program(JkBuiltin(head))),
+            ("tail".to_string(), JkList::from_program(JkBuiltin(tail))),
+            ("empty".to_string(), JkList::from_program(JkBuiltin(empty))),
+            ("reset".to_string(), JkList::from_program(JkBuiltin(reset))),
         ]),
         children: vec![],
     };
