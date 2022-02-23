@@ -233,9 +233,15 @@ fn add(fiber: &mut JkFiber) -> Result<(), JkError> {
     let b = fiber.pop()?.assert_number()?;
     let a = fiber.pop()?.assert_number()?;
     match (a, b) {
-        (JkInt(a), JkInt(b)) => { fiber.push(JkInt(a + b)); Ok(()) }
-        (JkFloat(a), JkFloat(b)) => { fiber.push(JkFloat(a+b)); Ok(()) }
-        _ => Err(JkError::TypeError)
+        (JkInt(a), JkInt(b)) => {
+            fiber.push(JkInt(a + b));
+            Ok(())
+        }
+        (JkFloat(a), JkFloat(b)) => {
+            fiber.push(JkFloat(a + b));
+            Ok(())
+        }
+        _ => Err(JkError::TypeError),
     }
 }
 
@@ -359,7 +365,7 @@ fn load(fiber: &mut JkFiber) -> Result<(), JkError> {
 fn eq(fiber: &mut JkFiber) -> Result<(), JkError> {
     let b = fiber.pop()?.as_int()?;
     let a = fiber.pop()?.as_int()?;
-    fiber.push(JkBool(a==b));
+    fiber.push(JkBool(a == b));
     Ok(())
 }
 
@@ -373,14 +379,17 @@ fn cons(fiber: &mut JkFiber) -> Result<(), JkError> {
 
 fn head(fiber: &mut JkFiber) -> Result<(), JkError> {
     let mut q = fiber.pop()?.as_list()?;
-    let res = q.pop_front().ok_or(JkError::RuntimeError("[] head".to_string()))?;
+    let res = q
+        .pop_front()
+        .ok_or(JkError::RuntimeError("[] head".to_string()))?;
     fiber.push(res);
     Ok(())
 }
 
 fn tail(fiber: &mut JkFiber) -> Result<(), JkError> {
     let mut q = fiber.pop()?.as_list()?;
-    q.pop_front().ok_or(JkError::RuntimeError("[] tail".to_string()))?;
+    q.pop_front()
+        .ok_or(JkError::RuntimeError("[] tail".to_string()))?;
     fiber.push(JkQuotation(q));
     Ok(())
 }
