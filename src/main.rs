@@ -246,31 +246,67 @@ fn add(fiber: &mut JkFiber) -> Result<(), JkError> {
 }
 
 fn sub(fiber: &mut JkFiber) -> Result<(), JkError> {
-    let b = fiber.pop()?.as_int()?;
-    let a = fiber.pop()?.as_int()?;
-    fiber.push(JkInt(a - b));
-    Ok(())
+    let b = fiber.pop()?.assert_number()?;
+    let a = fiber.pop()?.assert_number()?;
+    match (a, b) {
+        (JkInt(a), JkInt(b)) => {
+            fiber.push(JkInt(a - b));
+            Ok(())
+        }
+        (JkFloat(a), JkFloat(b)) => {
+            fiber.push(JkFloat(a - b));
+            Ok(())
+        }
+        _ => Err(JkError::TypeError),
+    }
 }
 
 fn mul(fiber: &mut JkFiber) -> Result<(), JkError> {
-    let b = fiber.pop()?.as_int()?;
-    let a = fiber.pop()?.as_int()?;
-    fiber.push(JkInt(a * b));
-    Ok(())
+    let b = fiber.pop()?.assert_number()?;
+    let a = fiber.pop()?.assert_number()?;
+    match (a, b) {
+        (JkInt(a), JkInt(b)) => {
+            fiber.push(JkInt(a * b));
+            Ok(())
+        }
+        (JkFloat(a), JkFloat(b)) => {
+            fiber.push(JkFloat(a * b));
+            Ok(())
+        }
+        _ => Err(JkError::TypeError),
+    }
 }
 
 fn div(fiber: &mut JkFiber) -> Result<(), JkError> {
-    let b = fiber.pop()?.as_int()?;
-    let a = fiber.pop()?.as_int()?;
-    fiber.push(JkInt(a / b));
-    Ok(())
+    let b = fiber.pop()?.assert_number()?;
+    let a = fiber.pop()?.assert_number()?;
+    match (a, b) {
+        (JkInt(a), JkInt(b)) => {
+            fiber.push(JkInt(a / b));
+            Ok(())
+        }
+        (JkFloat(a), JkFloat(b)) => {
+            fiber.push(JkFloat(a / b));
+            Ok(())
+        }
+        _ => Err(JkError::TypeError),
+    }
 }
 
-fn modulus(fiber: &mut JkFiber) -> Result<(), JkError> {
-    let b = fiber.pop()?.as_int()?;
-    let a = fiber.pop()?.as_int()?;
-    fiber.push(JkInt(a % b));
-    Ok(())
+fn modulo(fiber: &mut JkFiber) -> Result<(), JkError> {
+    let b = fiber.pop()?.assert_number()?;
+    let a = fiber.pop()?.assert_number()?;
+    match (a, b) {
+        (JkInt(a), JkInt(b)) => {
+            fiber.push(JkInt(a % b));
+            Ok(())
+        }
+        (JkFloat(a), JkFloat(b)) => {
+            fiber.push(JkFloat(a % b));
+            Ok(())
+        }
+        _ => Err(JkError::TypeError),
+    }
 }
 
 fn dup(fiber: &mut JkFiber) -> Result<(), JkError> {
@@ -454,7 +490,7 @@ fn main() -> Result<(), JkError> {
             ("-".to_string(), JkList::from_program(JkBuiltin(sub))),
             ("*".to_string(), JkList::from_program(JkBuiltin(mul))),
             ("/".to_string(), JkList::from_program(JkBuiltin(div))),
-            ("%".to_string(), JkList::from_program(JkBuiltin(modulus))),
+            ("%".to_string(), JkList::from_program(JkBuiltin(modulo))),
             ("dup".to_string(), JkList::from_program(JkBuiltin(dup))),
             ("swap".to_string(), JkList::from_program(JkBuiltin(swap))),
             ("drop".to_string(), JkList::from_program(JkBuiltin(drop))),
