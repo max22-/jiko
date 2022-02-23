@@ -452,6 +452,18 @@ fn iota(fiber: &mut JkFiber) -> Result<(), JkError> {
     Ok(())
 }
 
+fn jk_print(fiber: &mut JkFiber) -> Result<(), JkError> {
+    let s = fiber.pop()?.as_string()?;
+    print!("{}", s);
+    Ok(())
+}
+
+fn jk_println(fiber: &mut JkFiber) -> Result<(), JkError> {
+    let s = fiber.pop()?.as_string()?;
+    println!("{}", s);
+    Ok(())
+}
+
 fn eval_atom(fiber: &mut JkFiber, p: JkProgram) -> Result<(), JkError> {
     match p {
         JkWord(w) => match fiber.dict.get(&w) {
@@ -517,6 +529,8 @@ fn main() -> Result<(), JkError> {
             ("empty?".to_string(), JkList::from_program(JkBuiltin(empty))),
             ("reset".to_string(), JkList::from_program(JkBuiltin(reset))),
             ("iota".to_string(), JkList::from_program(JkBuiltin(iota))),
+            ("print".to_string(), JkList::from_program(JkBuiltin(jk_print))),
+            ("println".to_string(), JkList::from_program(JkBuiltin(jk_println))),
         ]),
         children: vec![],
     };
