@@ -314,6 +314,62 @@ fn modulo(fiber: &mut JkFiber) -> Result<(), JkError> {
     }
 }
 
+fn lt(fiber: &mut JkFiber) -> Result<(), JkError> {
+    let b = fiber.pop()?.assert_number()?;
+    let a = fiber.pop()?.assert_number()?;
+    match (a, b) {
+        (JkInt(a), JkInt(b)) => {
+            if b == 0 { return Err(JkError::DivisionByZero) }
+            fiber.push(JkBool(a < b));
+            Ok(())
+        }
+        (JkFloat(a), JkFloat(b)) => {
+            if b == 0f64 { return Err(JkError::DivisionByZero) }
+            fiber.push(JkBool(a < b));
+            Ok(())
+        }
+        _ => Err(JkError::TypeError),
+    }  
+}
+
+fn gt(fiber: &mut JkFiber) -> Result<(), JkError> {
+    let b = fiber.pop()?.assert_number()?;
+    let a = fiber.pop()?.assert_number()?;
+    match (a, b) {
+        (JkInt(a), JkInt(b)) => {
+            if b == 0 { return Err(JkError::DivisionByZero) }
+            fiber.push(JkBool(a > b));
+            Ok(())
+        }
+        (JkFloat(a), JkFloat(b)) => {
+            if b == 0f64 { return Err(JkError::DivisionByZero) }
+            fiber.push(JkBool(a > b));
+            Ok(())
+        }
+        _ => Err(JkError::TypeError),
+    }   
+}
+
+fn and(fiber: &mut JkFiber) -> Result<(), JkError> {
+    let b = fiber.pop()?.as_boolean()?;
+    let a = fiber.pop()?.as_boolean()?;
+    fiber.push(JkBool(a && b));
+    Ok(())
+}
+
+fn or(fiber: &mut JkFiber) -> Result<(), JkError> {
+    let b = fiber.pop()?.as_boolean()?;
+    let a = fiber.pop()?.as_boolean()?;
+    fiber.push(JkBool(a || b));
+    Ok(())
+}
+
+fn not(fiber: &mut JkFiber) -> Result<(), JkError> {
+    let a = fiber.pop()?.as_boolean()?;
+    fiber.push(JkBool(!a));
+    Ok(())
+}
+
 fn dup(fiber: &mut JkFiber) -> Result<(), JkError> {
     let p = fiber.pop()?;
     fiber.push(p.clone());
@@ -510,6 +566,13 @@ fn main() -> Result<(), JkError> {
             ("*".to_string(), JkList::from_program(JkBuiltin(mul))),
             ("/".to_string(), JkList::from_program(JkBuiltin(div))),
             ("%".to_string(), JkList::from_program(JkBuiltin(modulo))),
+
+            ("<".to_string(), JkList::from_program(JkBuiltin(lt))),
+            (">".to_string(), JkList::from_program(JkBuiltin(gt))),
+            ("and".to_string(), JkList::from_program(JkBuiltin(and))),
+            ("or".to_string(), JkList::from_program(JkBuiltin(or))),
+            ("not".to_string(), JkList::from_program(JkBuiltin(not))),
+
             ("dup".to_string(), JkList::from_program(JkBuiltin(dup))),
             ("swap".to_string(), JkList::from_program(JkBuiltin(swap))),
             ("drop".to_string(), JkList::from_program(JkBuiltin(drop))),
