@@ -24,3 +24,9 @@
         ifte
     ] ifte
 ] [filter] def
+
+[dup empty?
+    [drop 0]
+    [1 swap tail len +]
+    ifte
+] [len] def
