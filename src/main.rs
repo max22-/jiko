@@ -319,12 +319,10 @@ fn lt(fiber: &mut JkFiber) -> Result<(), JkError> {
     let a = fiber.pop()?.assert_number()?;
     match (a, b) {
         (JkInt(a), JkInt(b)) => {
-            if b == 0 { return Err(JkError::DivisionByZero) }
             fiber.push(JkBool(a < b));
             Ok(())
         }
         (JkFloat(a), JkFloat(b)) => {
-            if b == 0f64 { return Err(JkError::DivisionByZero) }
             fiber.push(JkBool(a < b));
             Ok(())
         }
@@ -337,12 +335,10 @@ fn gt(fiber: &mut JkFiber) -> Result<(), JkError> {
     let a = fiber.pop()?.assert_number()?;
     match (a, b) {
         (JkInt(a), JkInt(b)) => {
-            if b == 0 { return Err(JkError::DivisionByZero) }
             fiber.push(JkBool(a > b));
             Ok(())
         }
         (JkFloat(a), JkFloat(b)) => {
-            if b == 0f64 { return Err(JkError::DivisionByZero) }
             fiber.push(JkBool(a > b));
             Ok(())
         }
