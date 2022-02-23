@@ -30,3 +30,14 @@
     [1 swap tail len +]
     ifte
 ] [len] def
+
+[
+    dup empty?
+    []
+    [
+        dup dup tail swap head dup bury quote [<=] cat filter qsort
+        dig dup tail swap head quote [>] cat filter qsort
+        dig swap cons cat
+    ]
+    ifte
+] [qsort] def
