@@ -227,6 +227,7 @@ enum JkError {
     UndefinedWord,
     Expected(String),
     RuntimeError(String),
+    DivisionByZero,
 }
 
 fn add(fiber: &mut JkFiber) -> Result<(), JkError> {
@@ -282,10 +283,12 @@ fn div(fiber: &mut JkFiber) -> Result<(), JkError> {
     let a = fiber.pop()?.assert_number()?;
     match (a, b) {
         (JkInt(a), JkInt(b)) => {
+            if b == 0 { return Err(JkError::DivisionByZero) }
             fiber.push(JkInt(a / b));
             Ok(())
         }
         (JkFloat(a), JkFloat(b)) => {
+            if b == 0f64 { return Err(JkError::DivisionByZero) }
             fiber.push(JkFloat(a / b));
             Ok(())
         }
@@ -298,10 +301,12 @@ fn modulo(fiber: &mut JkFiber) -> Result<(), JkError> {
     let a = fiber.pop()?.assert_number()?;
     match (a, b) {
         (JkInt(a), JkInt(b)) => {
+            if b == 0 { return Err(JkError::DivisionByZero) }
             fiber.push(JkInt(a % b));
             Ok(())
         }
         (JkFloat(a), JkFloat(b)) => {
+            if b == 0f64 { return Err(JkError::DivisionByZero) }
             fiber.push(JkFloat(a % b));
             Ok(())
         }
