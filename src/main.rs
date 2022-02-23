@@ -410,14 +410,6 @@ fn eq(fiber: &mut JkFiber) -> Result<(), JkError> {
     Ok(())
 }
 
-fn cons(fiber: &mut JkFiber) -> Result<(), JkError> {
-    let mut q = fiber.pop()?.as_list()?;
-    let a = fiber.pop()?;
-    q.push_front(a);
-    fiber.push(JkQuotation(q));
-    Ok(())
-}
-
 fn head(fiber: &mut JkFiber) -> Result<(), JkError> {
     let mut q = fiber.pop()?.as_list()?;
     let res = q
@@ -528,7 +520,6 @@ fn main() -> Result<(), JkError> {
             ("def".to_string(), JkList::from_program(JkBuiltin(def))),
             ("load".to_string(), JkList::from_program(JkBuiltin(load))),
             ("=".to_string(), JkList::from_program(JkBuiltin(eq))),
-            ("cons".to_string(), JkList::from_program(JkBuiltin(cons))),
             ("head".to_string(), JkList::from_program(JkBuiltin(head))),
             ("tail".to_string(), JkList::from_program(JkBuiltin(tail))),
             ("empty?".to_string(), JkList::from_program(JkBuiltin(empty))),
