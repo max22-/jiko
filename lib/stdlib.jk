@@ -1,3 +1,7 @@
+[over over > [drop drop true] [=] ifte] [>=] def
+[over over < [drop drop true] [=] ifte] [<=] def
+[= not] [!=] def
+
 [quote swap cat] [swons] def
 [swap swons] [cons] def
 [swap dup quote swap quote cat swap quote cat i swap] [over] def
