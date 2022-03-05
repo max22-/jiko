@@ -415,6 +415,26 @@ fn over(fiber: &mut JkFiber) -> Result<(), JkError> {
     Ok(())
 }
 
+fn dig(fiber: &mut JkFiber) -> Result<(), JkError> {
+    let c = fiber.pop()?;
+    let b = fiber.pop()?;
+    let a = fiber.pop()?;
+    fiber.push(b);
+    fiber.push(c);
+    fiber.push(a);
+    Ok(())
+}
+
+fn bury(fiber: &mut JkFiber) -> Result<(), JkError> {
+    let c = fiber.pop()?;
+    let b = fiber.pop()?;
+    let a = fiber.pop()?;
+    fiber.push(c);
+    fiber.push(a);
+    fiber.push(b);
+    Ok(())
+}
+
 fn ifte(fiber: &mut JkFiber) -> Result<(), JkError> {
     let else_part = fiber.pop()?.as_list()?;
     let then_part = fiber.pop()?.as_list()?;
@@ -586,6 +606,8 @@ fn main() -> Result<(), JkError> {
             ("i".to_string(), JkList::from_program(JkBuiltin(apply))),
 
             ("over".to_string(), JkList::from_program(JkBuiltin(over))),
+            ("dig".to_string(), JkList::from_program(JkBuiltin(dig))),
+            ("bury".to_string(), JkList::from_program(JkBuiltin(bury))),
 
             ("ifte".to_string(), JkList::from_program(JkBuiltin(ifte))),
             ("def".to_string(), JkList::from_program(JkBuiltin(def))),
