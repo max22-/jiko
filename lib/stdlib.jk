@@ -4,7 +4,6 @@
 
 [quote swap cat] [swons] def
 [swap swons] [cons] def
-[swap dup quote swap quote cat swap quote cat i swap] [over] def
 [quote swap quote swap cat swap quote cat i] [dig] def
 [quote swap quote cat swap quote cat i swap] [bury] def
 [over empty? 

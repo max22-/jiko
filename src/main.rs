@@ -406,6 +406,15 @@ fn apply(fiber: &mut JkFiber) -> Result<(), JkError> {
     Ok(())
 }
 
+fn over(fiber: &mut JkFiber) -> Result<(), JkError> {
+    let b = fiber.pop()?;
+    let a = fiber.pop()?;
+    fiber.push(a.clone());
+    fiber.push(b);
+    fiber.push(a);
+    Ok(())
+}
+
 fn ifte(fiber: &mut JkFiber) -> Result<(), JkError> {
     let else_part = fiber.pop()?.as_list()?;
     let then_part = fiber.pop()?.as_list()?;
@@ -575,8 +584,13 @@ fn main() -> Result<(), JkError> {
             ("quote".to_string(), JkList::from_program(JkBuiltin(quote))),
             ("cat".to_string(), JkList::from_program(JkBuiltin(cat))),
             ("i".to_string(), JkList::from_program(JkBuiltin(apply))),
+
+            ("over".to_string(), JkList::from_program(JkBuiltin(over))),
+
             ("ifte".to_string(), JkList::from_program(JkBuiltin(ifte))),
             ("def".to_string(), JkList::from_program(JkBuiltin(def))),
+
+
             ("load".to_string(), JkList::from_program(JkBuiltin(load))),
             ("=".to_string(), JkList::from_program(JkBuiltin(eq))),
             ("head".to_string(), JkList::from_program(JkBuiltin(head))),
