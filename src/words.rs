@@ -342,8 +342,7 @@ pub fn builtin_dict() -> JkDict {
 
         ("ifte".to_string(), JkList::from_program(JkBuiltin(ifte))),
         ("def".to_string(), JkList::from_program(JkBuiltin(def))),
-
-
+        #[cfg(not(target_arch = "wasm32"))]
         ("load".to_string(), JkList::from_program(JkBuiltin(load))),
         ("=".to_string(), JkList::from_program(JkBuiltin(eq))),
         ("head".to_string(), JkList::from_program(JkBuiltin(head))),
@@ -355,3 +354,4 @@ pub fn builtin_dict() -> JkDict {
         ("println".to_string(), JkList::from_program(JkBuiltin(jk_println))),
     ])
 }
+
