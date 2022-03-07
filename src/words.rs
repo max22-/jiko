@@ -223,10 +223,7 @@ fn def(fiber: &mut JkFiber) -> Result<(), JkError> {
 
     while names.size() > 0 {
         let name = names.pop_back().unwrap().word_as_string()?;
-        let definition = match fiber.pop()? {
-            JkQuotation(l) => l,
-            atom => JkList::from_program(atom),
-        };
+        let definition = fiber.pop()?.as_list()?;
         fiber.dict.insert(name, definition);
     }
     Ok(())
