@@ -116,6 +116,38 @@ fn gt(fiber: &mut JkFiber) -> Result<(), JkError> {
     }   
 }
 
+fn lte(fiber: &mut JkFiber) -> Result<(), JkError> {
+    let b = fiber.pop()?.assert_number()?;
+    let a = fiber.pop()?.assert_number()?;
+    match (a, b) {
+        (JkInt(a), JkInt(b)) => {
+            fiber.push(JkBool(a <= b));
+            Ok(())
+        }
+        (JkFloat(a), JkFloat(b)) => {
+            fiber.push(JkBool(a <= b));
+            Ok(())
+        }
+        _ => Err(JkError::TypeError),
+    }  
+}
+
+fn gte(fiber: &mut JkFiber) -> Result<(), JkError> {
+    let b = fiber.pop()?.assert_number()?;
+    let a = fiber.pop()?.assert_number()?;
+    match (a, b) {
+        (JkInt(a), JkInt(b)) => {
+            fiber.push(JkBool(a >= b));
+            Ok(())
+        }
+        (JkFloat(a), JkFloat(b)) => {
+            fiber.push(JkBool(a >= b));
+            Ok(())
+        }
+        _ => Err(JkError::TypeError),
+    }   
+}
+
 fn and(fiber: &mut JkFiber) -> Result<(), JkError> {
     let b = fiber.pop()?.as_boolean()?;
     let a = fiber.pop()?.as_boolean()?;
@@ -338,6 +370,8 @@ pub fn builtin_dict() -> JkDict {
 
         ("<".to_string(), JkList::from_program(JkBuiltin(lt))),
         (">".to_string(), JkList::from_program(JkBuiltin(gt))),
+        ("<=".to_string(), JkList::from_program(JkBuiltin(lte))),
+        (">=".to_string(), JkList::from_program(JkBuiltin(gte))),
         ("and".to_string(), JkList::from_program(JkBuiltin(and))),
         ("or".to_string(), JkList::from_program(JkBuiltin(or))),
         ("not".to_string(), JkList::from_program(JkBuiltin(not))),

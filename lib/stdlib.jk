@@ -1,8 +1,7 @@
-[over over > [drop drop true] [=] ifte] [>=] def
-[over over < [drop drop true] [=] ifte] [<=] def
 [= not] [!=] def
 
 [swap cons] [swons] def
+
 [over empty? 
     [drop] 
     [
