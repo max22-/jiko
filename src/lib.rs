@@ -72,6 +72,12 @@ impl JkProgram {
             _ => Err(JkError::Expected("quotation".to_string())),
         }
     }
+    fn as_quotation(self) -> Result<JkProgram, JkError> {
+        match self {
+            JkQuotation(_) => Ok(self),
+            _ => Err(JkError::Expected("quotation".to_string())),
+        }
+    }
 }
 
 use JkProgram::*;

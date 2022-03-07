@@ -176,6 +176,22 @@ fn apply(fiber: &mut JkFiber) -> Result<(), JkError> {
     Ok(())
 }
 
+fn cons(fiber: &mut JkFiber) -> Result<(), JkError> {
+    let mut b = fiber.pop()?.as_list()?;
+    let a = fiber.pop()?;
+    b.push_front(a);
+    fiber.push(JkQuotation(b));
+    Ok(())
+}
+
+fn uncons(fiber: &mut JkFiber) -> Result<(), JkError> {
+    let mut b = fiber.pop()?.as_list()?;
+    let a = b.pop_front().ok_or(JkError::RuntimeError("[] uncons".to_string()))?;
+    fiber.push(a);
+    fiber.push(JkQuotation(b));
+    Ok(())
+}
+
 fn over(fiber: &mut JkFiber) -> Result<(), JkError> {
     let b = fiber.pop()?;
     let a = fiber.pop()?;
@@ -333,6 +349,8 @@ pub fn builtin_dict() -> JkDict {
         ("cat".to_string(), JkList::from_program(JkBuiltin(cat))),
         ("i".to_string(), JkList::from_program(JkBuiltin(apply))),
 
+        ("cons".to_string(), JkList::from_program(JkBuiltin(cons))),
+        ("uncons".to_string(), JkList::from_program(JkBuiltin(uncons))),
         ("over".to_string(), JkList::from_program(JkBuiltin(over))),
         ("dig".to_string(), JkList::from_program(JkBuiltin(dig))),
         ("bury".to_string(), JkList::from_program(JkBuiltin(bury))),

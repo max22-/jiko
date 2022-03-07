@@ -2,8 +2,7 @@
 [over over < [drop drop true] [=] ifte] [<=] def
 [= not] [!=] def
 
-[quote swap cat] [swons] def
-[swap swons] [cons] def
+[swap cons] [swons] def
 [over empty? 
     [drop] 
     [
