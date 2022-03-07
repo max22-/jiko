@@ -1,12 +1,12 @@
 [= not] [!=] def
 
 [swap cons] [swons] def
+[uncons swap] [unswons] def
 
 [over empty? 
     [drop] 
     [
-        over head over i quote
-        dig tail dig map cat
+        [unswons] dip dup dip [swap] dip map cons
     ] ifte
 ] [map] def
 
