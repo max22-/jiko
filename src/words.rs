@@ -208,6 +208,14 @@ fn apply(fiber: &mut JkFiber) -> Result<(), JkError> {
     Ok(())
 }
 
+fn dip(fiber: &mut JkFiber) -> Result<(), JkError> {
+    let mut b = fiber.pop()?.as_list()?;
+    let a = fiber.pop()?;
+    b.push_back(a);
+    fiber.prepend_queue(b);
+    Ok(())
+}
+
 fn cons(fiber: &mut JkFiber) -> Result<(), JkError> {
     let mut b = fiber.pop()?.as_list()?;
     let a = fiber.pop()?;
@@ -383,6 +391,7 @@ pub fn builtin_dict() -> JkDict {
         ("cat".to_string(), JkList::from_program(JkBuiltin(cat))),
         ("i".to_string(), JkList::from_program(JkBuiltin(apply))),
 
+        ("dip".to_string(), JkList::from_program(JkBuiltin(dip))),
         ("cons".to_string(), JkList::from_program(JkBuiltin(cons))),
         ("uncons".to_string(), JkList::from_program(JkBuiltin(uncons))),
         ("over".to_string(), JkList::from_program(JkBuiltin(over))),
