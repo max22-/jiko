@@ -261,6 +261,13 @@ fn bury(fiber: &mut JkFiber) -> Result<(), JkError> {
     Ok(())
 }
 
+fn nip(fiber: &mut JkFiber) -> Result<(), JkError> {
+    let b = fiber.pop()?;
+    fiber.pop()?;
+    fiber.push(b);
+    Ok(())
+}
+
 fn ifte(fiber: &mut JkFiber) -> Result<(), JkError> {
     let else_part = fiber.pop()?.as_list()?;
     let then_part = fiber.pop()?.as_list()?;
@@ -397,6 +404,7 @@ pub fn builtin_dict() -> JkDict {
         ("over".to_string(), JkList::from_program(JkBuiltin(over))),
         ("dig".to_string(), JkList::from_program(JkBuiltin(dig))),
         ("bury".to_string(), JkList::from_program(JkBuiltin(bury))),
+        ("nip".to_string(), JkList::from_program(JkBuiltin(nip))),
 
         ("ifte".to_string(), JkList::from_program(JkBuiltin(ifte))),
         ("def".to_string(), JkList::from_program(JkBuiltin(def))),
