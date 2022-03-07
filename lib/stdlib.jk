@@ -13,10 +13,7 @@
 [over empty?
     [drop]
     [
-        over head over i
-        [swap dup head quote swap tail dig filter cat]
-        [swap tail swap filter]
-        ifte
+        [unswons dup] dip dup dip swap [[swap] dip filter cons] [[drop] dip filter] ifte
     ] ifte
 ] [filter] def
 
