@@ -1,0 +1,4 @@
+jiko
+*.o
+*.d
+valgrind-out.txt
