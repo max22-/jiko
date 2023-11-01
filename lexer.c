@@ -20,7 +20,7 @@ token_t *token_new(token_type type, const char *value, unsigned int line,
 }
 
 void token_free(token_t *token) {
-    free(token->value);
+    free((void*)token->value);
     free(token);
 }
 
