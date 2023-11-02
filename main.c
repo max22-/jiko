@@ -4,6 +4,7 @@
 void print(const char *s) { printf("%s", s); }
 
 int main() {
+    jiko_init();
     lexer_t *lex = lexer_new("1 2 3 [ a b c def ] \"abc\"");
     for (token_t *tok = lexer_next(lex);
          tok->type != TOK_EOF && tok->type != TOK_ERROR;
@@ -11,4 +12,5 @@ int main() {
         token_print(tok, print);
         printf("\n");
     }
+    jiko_cleanup();
 }
