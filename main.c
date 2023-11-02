@@ -20,6 +20,7 @@ int main() {
         j != -1 && TYPE(j) != JK_ERROR; j = parser_parse(parser)) {
         jk_print(j);
         printf("\n");
+        jk_object_free(j);
     }
     printf("j=%d\n", j);
     parser_free(parser);
