@@ -1,3 +1,6 @@
+#ifndef TYPES_H
+#define TYPES_H
+
 #include "word_table.h" /* for word_t type declaration */
 
 typedef enum jk_type {
@@ -35,6 +38,8 @@ struct jk_fiber {
     jk_object_t stack, queue, env;
 };
 
+extern struct jk_object *heap;
+
 #define TYPE(j) (heap[(j)].type)
 #define AS_INT(j) (heap[(j)].value.as_int)
 #define AS_BOOL(j) (heap[(j)].value.as_bool)
@@ -52,7 +57,11 @@ jk_object_t jk_make_bool(int b);
 jk_object_t jk_make_string(const char* str);
 jk_object_t jk_make_word(const char *w);
 jk_object_t jk_make_pair(jk_object_t car, jk_object_t cdr);
-void jk_append(jk_object_t q, jk_object_t j);
+jk_object_t jk_append(jk_object_t q, jk_object_t j);
 jk_object_t jk_make_builtin(void (*f)(struct jk_fiber *));
 jk_object_t jk_make_fiber();
 jk_object_t jk_make_error(jk_object_t j);
+
+void jk_print(jk_object_t);
+
+#endif

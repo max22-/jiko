@@ -79,6 +79,11 @@ lexer_t *lexer_new(const char *text) {
     return res;
 }
 
+void lexer_free(lexer_t *lex) {
+    free((void*)lex->text);
+    free(lex);
+}
+
 static token_t *open_bracket(lexer_t *lex) {
     token_t *res =
         token_new(TOK_OPEN_BRACKET, "[", lex->start_line, lex->start_column);

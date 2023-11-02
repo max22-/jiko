@@ -1,4 +1,5 @@
 #include "lexer.h"
+#include "parser.h"
 #include "types.h"
 
 void jiko_init();

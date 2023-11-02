@@ -1,3 +1,6 @@
+#ifndef LEXER_H
+#define LEXER_H
+
 #include <stddef.h>
 
 /* Token ******************************************************************* */
@@ -33,4 +36,7 @@ typedef struct lexer {
 } lexer_t;
 
 lexer_t *lexer_new(const char *text);
+void lexer_free(lexer_t *lex);
 token_t *lexer_next(lexer_t *lexer);
+
+#endif

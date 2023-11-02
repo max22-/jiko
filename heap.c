@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
+#include <stdint.h>
 #include "types.h"
 #include "misc.h"
 #include "word_table.h"
@@ -102,8 +103,13 @@ jk_object_t jk_make_pair(jk_object_t car, jk_object_t cdr) {
     return res;
 }
 
-void jk_append(jk_object_t q, jk_object_t j) {
-#warning not implemented yet
+jk_object_t jk_append(jk_object_t q, jk_object_t j) {
+    if(q == -1)
+        return jk_make_pair(j, -1);
+    jk_object_t qi;
+    for(qi = q; CDR(qi) != -1; qi = CDR(qi));
+    CDR(qi) = jk_make_pair(j, -1);
+    return q;
 }
 
 jk_object_t jk_make_builtin(void (*f)(struct jk_fiber *)) {
@@ -123,4 +129,43 @@ jk_object_t jk_make_error(jk_object_t j) {
     TYPE(res) = JK_ERROR;
     AS_ERROR(res) = j;
     return res;
+}
+
+// TODO: transform it to a jk_to_string function ?
+void jk_print(jk_object_t j) {
+    switch(TYPE(j)) {
+    case JK_INT:
+        printf("%d", AS_INT(j));
+        break;
+    case JK_BOOL:
+        printf("%s", AS_BOOL(j) ? "true" : "false");
+        break;
+    case JK_STRING:
+        printf("\"%s\"", AS_STRING(j));
+        break;
+    case JK_WORD:
+        printf("%s", word_to_string(AS_WORD(j)));
+        break;
+    case JK_QUOTATION: {
+        printf("[");
+        for(jk_object_t ji = j; ji != -1; ji = CDR(ji)) {
+            jk_print(CAR(ji));
+            if(CDR(ji) != -1)
+                printf(" ");
+        }
+        printf("]");
+        break;
+    }
+    case JK_BUILTIN:
+        printf("<builtin 0x%lx>", (intptr_t)AS_BUILTIN(j));
+        break;
+    case JK_FIBER:
+        printf("<fiber 0x%lx>", (intptr_t)AS_FIBER(j));
+        break;
+    case JK_ERROR:
+        printf("<error ");
+        jk_print(AS_ERROR(j));
+        printf(">");
+        break;
+    }
 }
