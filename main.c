@@ -1,7 +1,14 @@
 #include "jiko.h"
 #include <stdio.h>
+#include <stdlib.h>
 
 void print(const char *s) { printf("%s", s); }
+
+void jiko_panic(const char *msg) {
+    printf("panic: %s\n", msg);
+    jiko_cleanup();
+    exit(1);
+}
 
 int main() {
     jiko_init();

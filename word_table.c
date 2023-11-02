@@ -27,7 +27,8 @@ void word_table_free() {
 static void enlarge_table() {
     size_t new_size = table_size * 2;
     word_table = realloc(word_table, sizeof(const char*) * new_size);
-    assert(word_table);
+    if(!word_table)
+        jiko_panic("enlarge_table: realloc failed");
     table_size = new_size;
 }
 
