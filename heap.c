@@ -68,35 +68,35 @@ void jk_object_free(jk_object_t j) {
 }
 
 jk_object_t jk_object_clone(jk_object_t j) {
-    switch(jk_get_type(j)) {
-        case JK_UNDEFINED:
-        case JK_EOF:
-        case JK_NIL:
-            return j;
-        case JK_INT:
-            return jk_make_int(AS_INT(j));
-        case JK_BOOL:
-            return jk_make_bool(AS_BOOL(j));
-        case JK_STRING:
-            return jk_make_string(AS_STRING(j));
-        case JK_WORD:
-            return jk_make_word(AS_WORD(j));
-        case JK_QUOTATION: {
-            jk_object_t res = JK_NIL, ji;
-            /* TODO: do not use jk_append to have better performance */
-            for(ji = j; ji != JK_NIL; ji = CDR(ji))
-                res = jk_append(res, jk_object_clone(CAR(ji)));
-            return res;
-        }
-        case JK_BUILTIN:
-            return jk_make_builtin(AS_BUILTIN(j));
-            break;
-        case JK_FIBER:
-            assert(0 && "not implemented yet");
-        case JK_ERROR:
-            return jk_make_error(jk_object_clone(AS_ERROR(j)));
-        default:
-            assert(0 && "unreachable");
+    switch (jk_get_type(j)) {
+    case JK_UNDEFINED:
+    case JK_EOF:
+    case JK_NIL:
+        return j;
+    case JK_INT:
+        return jk_make_int(AS_INT(j));
+    case JK_BOOL:
+        return jk_make_bool(AS_BOOL(j));
+    case JK_STRING:
+        return jk_make_string(AS_STRING(j));
+    case JK_WORD:
+        return jk_make_word(AS_WORD(j));
+    case JK_QUOTATION: {
+        jk_object_t res = JK_NIL, ji;
+        /* TODO: do not use jk_append to have better performance */
+        for (ji = j; ji != JK_NIL; ji = CDR(ji))
+            res = jk_append(res, jk_object_clone(CAR(ji)));
+        return res;
+    }
+    case JK_BUILTIN:
+        return jk_make_builtin(AS_BUILTIN(j));
+        break;
+    case JK_FIBER:
+        assert(0 && "not implemented yet");
+    case JK_ERROR:
+        return jk_make_error(jk_object_clone(AS_ERROR(j)));
+    default:
+        assert(0 && "unreachable");
     }
 }
 
@@ -249,7 +249,7 @@ static jk_object_t prev(jk_object_t head, jk_object_t j) {
     assert(head != JK_NIL);
     assert(head != j);
     jk_object_t res;
-    for(res = head; CDR(res) != j; res = CDR(res)) {
+    for (res = head; CDR(res) != j; res = CDR(res)) {
         assert(res != JK_NIL);
     }
     return res;
@@ -257,18 +257,17 @@ static jk_object_t prev(jk_object_t head, jk_object_t j) {
 
 static void print_reversed(jk_object_t j) {
     assert(jk_get_type(j) == JK_QUOTATION || j == JK_NIL);
-    if(j == JK_NIL)
+    if (j == JK_NIL)
         printf("[]");
     else {
         printf("[");
-        for(jk_object_t ji = prev(j, JK_NIL); ji != j; ji = prev(j, ji)) {
+        for (jk_object_t ji = prev(j, JK_NIL); ji != j; ji = prev(j, ji)) {
             jk_print(CAR(ji));
             printf(" ");
         }
         jk_print(CAR(j));
         printf("]");
     }
-
 }
 
 void jk_fiber_print(jk_fiber_t *f) {

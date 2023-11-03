@@ -1,27 +1,27 @@
-#include <assert.h>
 #include "lib.h"
 #include "env.h"
 #include "eval.h"
 #include "heap.h"
+#include <assert.h>
 
-#define JK_POP_CHECK(f, x)  \
-    do { \
-        x = jk_pop(f); \
-        if(jk_get_type(x) == JK_ERROR) { \
-            jk_push(f, x); \
-            return; \
-        } \
-    } while(0)
+#define JK_POP_CHECK(f, x)                                                     \
+    do {                                                                       \
+        x = jk_pop(f);                                                         \
+        if (jk_get_type(x) == JK_ERROR) {                                      \
+            jk_push(f, x);                                                     \
+            return;                                                            \
+        }                                                                      \
+    } while (0)
 
-#define JK_POP_CHECK_TYPE(f, x, type) \
-    do { \
-        JK_POP_CHECK(f, x); \
-        if(jk_get_type(x) != type) { \
-            jk_object_free(x); \
-            jk_push(f, jk_make_error(jk_make_string("expected " #type))); \
-            return; \
-        } \
-    } while(0)
+#define JK_POP_CHECK_TYPE(f, x, type)                                          \
+    do {                                                                       \
+        JK_POP_CHECK(f, x);                                                    \
+        if (jk_get_type(x) != type) {                                          \
+            jk_object_free(x);                                                 \
+            jk_push(f, jk_make_error(jk_make_string("expected " #type)));      \
+            return;                                                            \
+        }                                                                      \
+    } while (0)
 
 void add(jk_fiber_t *f) {
     jk_object_t a, b;
@@ -43,7 +43,6 @@ void mul(jk_fiber_t *f) {
     jk_push(f, jk_make_int(c));
 }
 
-
 void dup(jk_fiber_t *f) {
     jk_object_t j;
     JK_POP_CHECK(f, j);
@@ -52,9 +51,7 @@ void dup(jk_fiber_t *f) {
     jk_push(f, jc);
 }
 
-void drop(jk_fiber_t *f) {
-    jk_object_free(jk_pop(f));
-}
+void drop(jk_fiber_t *f) { jk_object_free(jk_pop(f)); }
 
 void swap(jk_fiber_t *f) {
     jk_object_t a, b;
