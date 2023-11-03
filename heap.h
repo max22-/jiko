@@ -1,6 +1,8 @@
 #ifndef HEAP_H
 #define HEAP_H
 
+#include "types.h"
+
 extern struct jk_object *heap;
 
 void heap_init(size_t s);

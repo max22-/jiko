@@ -16,7 +16,8 @@ int main() {
     parser_t *parser = parser_new(lex);
     jk_object_t j;
     for (j = parser_parse(parser);
-        jk_get_type(j) != JK_ERROR && jk_get_type(j) != JK_EOF; j = parser_parse(parser)) {
+         jk_get_type(j) != JK_ERROR && jk_get_type(j) != JK_EOF;
+         j = parser_parse(parser)) {
         jk_print(j);
         printf("\n");
         jk_object_free(j);

@@ -58,7 +58,7 @@ void jk_set_type(jk_object_t, jk_type);
 
 jk_object_t jk_make_int(int i);
 jk_object_t jk_make_bool(int b);
-jk_object_t jk_make_string(const char* str);
+jk_object_t jk_make_string(const char *str);
 jk_object_t jk_make_word(const char *w);
 jk_object_t jk_make_pair(jk_object_t car, jk_object_t cdr);
 jk_object_t jk_append(jk_object_t q, jk_object_t j);

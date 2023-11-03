@@ -1,6 +1,8 @@
 #ifndef WORD_TABLE_H
 #define WORD_TABLE_H
 
+#include <stddef.h>
+
 typedef unsigned int word_t;
 
 void word_table_init(size_t s);

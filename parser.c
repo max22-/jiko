@@ -1,7 +1,7 @@
-#include <stdlib.h>
-#include <assert.h>
 #include "parser.h"
 #include "heap.h"
+#include <assert.h>
+#include <stdlib.h>
 
 static void next(parser_t *p);
 
@@ -16,12 +16,13 @@ parser_t *parser_new(lexer_t *lex) {
 
 void parser_free(parser_t *p) {
     lexer_free(p->lexer);
-    if(p->look) token_free(p->look);
+    if (p->look)
+        token_free(p->look);
     free(p);
 }
 
 static void next(parser_t *p) {
-    if(p->look)
+    if (p->look)
         token_free(p->look);
     p->look = lexer_next(p->lexer);
 }
@@ -47,34 +48,34 @@ static jk_object_t word(parser_t *p) {
 static jk_object_t quotation(parser_t *p) {
     jk_object_t res = JK_NIL;
     next(p); // we match the '['
-    while(1) {
-        switch(p->look->type) {
-            case TOK_ERROR:
+    while (1) {
+        switch (p->look->type) {
+        case TOK_ERROR:
+            jk_object_free(res);
+            return jk_make_error(jk_make_string(p->look->value));
+        case TOK_EOF:
+            jk_object_free(res);
+            return jk_make_error(
+                jk_make_string("unexpected EOF inside quotation"));
+        case TOK_CLOSE_BRACKET:
+            goto parsed;
+        default: {
+            jk_object_t j = parser_parse(p);
+            if (jk_get_type(j) == JK_ERROR) {
                 jk_object_free(res);
-                return jk_make_error(jk_make_string(p->look->value));
-            case TOK_EOF:
-                jk_object_free(res);
-                return jk_make_error(jk_make_string("unexpected EOF inside quotation"));
-            case TOK_CLOSE_BRACKET:
-                goto parsed;
-            default: {
-                jk_object_t j = parser_parse(p);
-                if(jk_get_type(j) == JK_ERROR) {
-                    jk_object_free(res);
-                    return j;
-                }
-                res = jk_append(res, j);
+                return j;
             }
+            res = jk_append(res, j);
+        }
         }
     }
-    parsed:
+parsed:
     next(p); // we match the ']'
-    return res; 
+    return res;
 }
 
-
-jk_object_t parser_parse(parser_t* p) {
-    switch(p->look->type) {
+jk_object_t parser_parse(parser_t *p) {
+    switch (p->look->type) {
     case TOK_INTEGER:
         return integer(p);
     case TOK_STRING:
@@ -93,4 +94,3 @@ jk_object_t parser_parse(parser_t* p) {
         return jk_make_error(jk_make_string("unreachable"));
     }
 }
-

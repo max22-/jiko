@@ -80,7 +80,7 @@ lexer_t *lexer_new(const char *text) {
 }
 
 void lexer_free(lexer_t *lex) {
-    free((void*)lex->text);
+    free((void *)lex->text);
     free(lex);
 }
 

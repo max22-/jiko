@@ -1,6 +1,6 @@
 #include "jiko.h"
-#include "word_table.h"
 #include "heap.h"
+#include "word_table.h"
 
 void jiko_init() {
     word_table_init(1024);
