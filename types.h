@@ -36,9 +36,9 @@ struct jk_object {
     } value;
 };
 
-struct jk_fiber {
+typedef struct jk_fiber {
     jk_object_t stack, queue, env;
-};
+} jk_fiber_t;
 
 extern struct jk_object *heap;
 
