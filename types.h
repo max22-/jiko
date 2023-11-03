@@ -5,7 +5,7 @@
 
 typedef enum jk_type {
     JK_EOF = -2,
-    JK_NIL = -1,
+    JK_NIL = -1, /* the empty list */
     JK_INT,
     JK_BOOL,
     JK_STRING,
