@@ -58,6 +58,7 @@ void jk_object_free(jk_object_t j) {
         jk_object_free(AS_FIBER(j)->stack);
         jk_object_free(AS_FIBER(j)->queue);
         jk_object_free(AS_FIBER(j)->env);
+        free(AS_FIBER(j));
         break;
     case JK_ERROR:
         jk_object_free(AS_ERROR(j));
@@ -139,10 +140,14 @@ jk_object_t jk_make_builtin(void (*f)(jk_fiber_t *)) {
     return res;
 }
 
-jk_object_t jk_make_fiber(jk_fiber_t *f) {
+jk_object_t jk_make_fiber() {
     jk_object_t res = jk_object_alloc();
     jk_set_type(res, JK_FIBER);
-    AS_FIBER(res) = f;
+    AS_FIBER(res) = malloc(sizeof(jk_fiber_t));
+    assert(AS_FIBER(res));
+    AS_FIBER(res)->stack = JK_NIL;
+    AS_FIBER(res)->queue = JK_NIL;
+    AS_FIBER(res)->env = JK_NIL;
     return res;
 }
 
@@ -197,7 +202,7 @@ void jk_print(jk_object_t j) {
     }
 }
 
-void jk_print_fiber(jk_object_t j) {
+void jk_fiber_print(jk_object_t j) {
     assert(jk_get_type(j) == JK_FIBER);
     jk_print(AS_FIBER(j)->stack);
     printf(" : ");
