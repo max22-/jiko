@@ -202,9 +202,35 @@ void jk_print(jk_object_t j) {
     }
 }
 
+static jk_object_t prev(jk_object_t head, jk_object_t j) {
+    assert(head != JK_NIL);
+    assert(head != j);
+    jk_object_t res;
+    for(res = head; CDR(res) != j; res = CDR(res)) {
+        assert(res != JK_NIL);
+    }
+    return res;
+}
+
+static void print_reversed(jk_object_t j) {
+    assert(jk_get_type(j) == JK_QUOTATION || j == JK_NIL);
+    if(j == JK_NIL)
+        printf("[]");
+    else {
+        printf("[");
+        for(jk_object_t ji = prev(j, JK_NIL); ji != j; ji = prev(j, ji)) {
+            jk_print(CAR(ji));
+            printf(" ");
+        }
+        jk_print(CAR(j));
+        printf("]");
+    }
+
+}
+
 void jk_fiber_print(jk_object_t j) {
     assert(jk_get_type(j) == JK_FIBER);
-    jk_print(AS_FIBER(j)->stack);
+    print_reversed(AS_FIBER(j)->stack);
     printf(" : ");
     jk_print(AS_FIBER(j)->queue);
 }

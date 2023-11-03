@@ -23,6 +23,9 @@ int main() {
         jk_fiber_print(f);
         printf("\n");
     }
+    jk_fiber_eval(f, 1000);
+    jk_fiber_print(f);
+    printf("\n");
     jk_object_free(f);
     printf("j=%d\n", j);
     parser_free(parser);
