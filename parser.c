@@ -40,7 +40,7 @@ static jk_object_t string(parser_t *p) {
 }
 
 static jk_object_t word(parser_t *p) {
-    jk_object_t res = jk_make_word(p->look->value);
+    jk_object_t res = jk_make_word_from_string(p->look->value);
     next(p);
     return res;
 }

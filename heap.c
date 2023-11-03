@@ -32,13 +32,13 @@ jk_object_t jk_object_alloc() {
 }
 
 void jk_object_free(jk_object_t j) {
-    if (j < 0)
-        return;
     switch (jk_get_type(j)) {
+    case JK_UNDEFINED:
+        return; /* do nothing for special types */
     case JK_EOF:
-        break;
+        return; /* do nothing for special types */
     case JK_NIL:
-        break;
+        return; /* do nothing for special types */
     case JK_INT:
         break;
     case JK_BOOL:
@@ -55,10 +55,7 @@ void jk_object_free(jk_object_t j) {
     case JK_BUILTIN:
         break;
     case JK_FIBER:
-        jk_object_free(AS_FIBER(j)->stack);
-        jk_object_free(AS_FIBER(j)->queue);
-        jk_object_free(AS_FIBER(j)->env);
-        free(AS_FIBER(j));
+        jk_fiber_free(AS_FIBER(j));
         break;
     case JK_ERROR:
         jk_object_free(AS_ERROR(j));
@@ -70,12 +67,58 @@ void jk_object_free(jk_object_t j) {
     free_list_head = j;
 }
 
+jk_object_t jk_object_clone(jk_object_t j) {
+    switch(jk_get_type(j)) {
+        case JK_UNDEFINED:
+        case JK_EOF:
+        case JK_NIL:
+            return j;
+        case JK_INT:
+            return jk_make_int(AS_INT(j));
+        case JK_BOOL:
+            return jk_make_bool(AS_BOOL(j));
+        case JK_STRING:
+            return jk_make_string(AS_STRING(j));
+        case JK_WORD:
+            return jk_make_word(AS_WORD(j));
+        case JK_QUOTATION: {
+            jk_object_t res = JK_NIL, ji;
+            /* TODO: do not use jk_append to have better performance */
+            for(ji = j; ji != JK_NIL; ji = CDR(ji))
+                res = jk_append(res, jk_object_clone(CAR(ji)));
+            return res;
+        }
+        case JK_BUILTIN:
+            return jk_make_builtin(AS_BUILTIN(j));
+            break;
+        case JK_FIBER:
+            assert(0 && "not implemented yet");
+        case JK_ERROR:
+            return jk_make_error(jk_object_clone(AS_ERROR(j)));
+        default:
+            assert(0 && "unreachable");
+    }
+}
+
 void jk_set_type(jk_object_t j, jk_type t) {
     if (j >= 0)
         heap[j].type = t;
-    else {
-        assert(j == t);
-    }
+    /* else do nothing (special types that have only one value)*/
+}
+
+jk_fiber_t *jk_fiber_new() {
+    jk_fiber_t *res = malloc(sizeof(jk_fiber_t));
+    res->stack = JK_NIL;
+    res->queue = JK_NIL;
+    res->env_stack = jk_make_pair(JK_NIL, JK_NIL);
+    return res;
+}
+
+void jk_fiber_free(jk_fiber_t *f) {
+    jk_object_free(f->stack);
+    jk_object_free(f->queue);
+    jk_object_free(f->env_stack);
+    free(f);
 }
 
 jk_type jk_get_type(jk_object_t j) {
@@ -108,11 +151,15 @@ jk_object_t jk_make_string(const char *str) {
     return res;
 }
 
-jk_object_t jk_make_word(const char *w) {
+jk_object_t jk_make_word(word_t w) {
     jk_object_t res = jk_object_alloc();
     jk_set_type(res, JK_WORD);
-    AS_WORD(res) = word_from_string(w);
+    AS_WORD(res) = w;
     return res;
+}
+
+jk_object_t jk_make_word_from_string(const char *w) {
+    return jk_make_word(word_from_string(w));
 }
 
 jk_object_t jk_make_pair(jk_object_t car, jk_object_t cdr) {
@@ -140,14 +187,10 @@ jk_object_t jk_make_builtin(void (*f)(jk_fiber_t *)) {
     return res;
 }
 
-jk_object_t jk_make_fiber() {
+jk_object_t jk_make_fiber(jk_fiber_t *f) {
     jk_object_t res = jk_object_alloc();
     jk_set_type(res, JK_FIBER);
-    AS_FIBER(res) = malloc(sizeof(jk_fiber_t));
-    assert(AS_FIBER(res));
-    AS_FIBER(res)->stack = JK_NIL;
-    AS_FIBER(res)->queue = JK_NIL;
-    AS_FIBER(res)->env = JK_NIL;
+    AS_FIBER(res) = f;
     return res;
 }
 
@@ -228,9 +271,8 @@ static void print_reversed(jk_object_t j) {
 
 }
 
-void jk_fiber_print(jk_object_t j) {
-    assert(jk_get_type(j) == JK_FIBER);
-    print_reversed(AS_FIBER(j)->stack);
+void jk_fiber_print(jk_fiber_t *f) {
+    print_reversed(f->stack);
     printf(" : ");
-    jk_print(AS_FIBER(j)->queue);
+    jk_print(f->queue);
 }

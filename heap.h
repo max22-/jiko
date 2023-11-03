@@ -9,5 +9,6 @@ void heap_init(size_t s);
 void heap_free();
 jk_object_t jk_object_alloc();
 void jk_object_free(jk_object_t j);
+jk_object_t jk_object_clone(jk_object_t j);
 
 #endif
