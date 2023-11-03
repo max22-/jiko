@@ -45,7 +45,7 @@ static jk_object_t word(parser_t *p) {
 }
 
 static jk_object_t quotation(parser_t *p) {
-    jk_object_t res = -1;
+    jk_object_t res = JK_NIL;
     next(p); // we match the '['
     while(1) {
         switch(p->look->type) {
@@ -59,7 +59,7 @@ static jk_object_t quotation(parser_t *p) {
                 goto parsed;
             default: {
                 jk_object_t j = parser_parse(p);
-                if(TYPE(j) == JK_ERROR || j == -1) {
+                if(jk_get_type(j) == JK_ERROR) {
                     jk_object_free(res);
                     return j;
                 }
@@ -69,8 +69,7 @@ static jk_object_t quotation(parser_t *p) {
     }
     parsed:
     next(p); // we match the ']'
-    return res;
-    
+    return res; 
 }
 
 
@@ -89,7 +88,7 @@ jk_object_t parser_parse(parser_t* p) {
     case TOK_ERROR:
         return jk_make_error(jk_make_string(p->look->value));
     case TOK_EOF:
-        return -1;
+        return JK_EOF;
     default:
         return jk_make_error(jk_make_string("unreachable"));
     }

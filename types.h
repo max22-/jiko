@@ -4,6 +4,8 @@
 #include "word_table.h" /* for word_t type declaration */
 
 typedef enum jk_type {
+    JK_EOF = -2,
+    JK_NIL = -1,
     JK_INT,
     JK_BOOL,
     JK_STRING,
@@ -11,7 +13,7 @@ typedef enum jk_type {
     JK_QUOTATION,
     JK_BUILTIN,
     JK_FIBER,
-    JK_ERROR
+    JK_ERROR,
 } jk_type;
 
 struct jk_fiber;
@@ -40,7 +42,9 @@ struct jk_fiber {
 
 extern struct jk_object *heap;
 
-#define TYPE(j) (heap[(j)].type)
+jk_type jk_get_type(jk_object_t);
+void jk_set_type(jk_object_t, jk_type);
+
 #define AS_INT(j) (heap[(j)].value.as_int)
 #define AS_BOOL(j) (heap[(j)].value.as_bool)
 #define AS_STRING(j) (heap[(j)].value.as_string)

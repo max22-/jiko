@@ -15,9 +15,8 @@ int main() {
     lexer_t *lex = lexer_new("1 2 3 a b c [ a b [c d] def ] \"abc\" dup + []");
     parser_t *parser = parser_new(lex);
     jk_object_t j;
-    #warning TODO: implement JK_NIL = -1 (easy)
     for (j = parser_parse(parser);
-        j != -1 && TYPE(j) != JK_ERROR; j = parser_parse(parser)) {
+        jk_get_type(j) != JK_ERROR && jk_get_type(j) != JK_EOF; j = parser_parse(parser)) {
         jk_print(j);
         printf("\n");
         jk_object_free(j);

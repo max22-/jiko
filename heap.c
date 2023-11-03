@@ -8,14 +8,14 @@
 
 struct jk_object *heap = NULL;
 static size_t heap_size = 0; 
-jk_object_t free_list_head = -1;
+jk_object_t free_list_head = JK_NIL;
 
 void heap_init(size_t s) {
     heap = malloc(sizeof(struct jk_object) * s);
     heap_size = s;
     for(size_t i = 0; i < s; i++) {
         heap[i].type = JK_QUOTATION;
-        CAR(i) = -1;
+        CAR(i) = JK_NIL;
         CDR(i) = free_list_head;        
         free_list_head = i;
     }
@@ -26,7 +26,7 @@ void heap_free() {
 }
 
 jk_object_t jk_object_alloc() {
-    if(free_list_head == -1)
+    if(free_list_head == JK_NIL)
         jiko_panic("heap full"); // TODO: make the heap grow ?
     jk_object_t j = free_list_head;
     free_list_head = CDR(free_list_head);
@@ -35,7 +35,7 @@ jk_object_t jk_object_alloc() {
 
 void jk_object_free(jk_object_t j) {
     if(j < 0) return;
-    switch(TYPE(j)) {
+    switch(jk_get_type(j)) {
     case JK_INT:
         break;
     case JK_BOOL:
@@ -59,62 +59,77 @@ void jk_object_free(jk_object_t j) {
         break;
     
     }
-    TYPE(j) = JK_QUOTATION;
-    CAR(j) = -1;
+    jk_set_type(j, JK_QUOTATION);
+    CAR(j) = JK_NIL;
     CDR(j) = free_list_head;
     free_list_head = j;
+}
+
+void jk_set_type(jk_object_t j, jk_type t) {
+    if(j >= 0)
+        heap[j].type = t;
+    else {
+        assert(j == t);
+    }
+}
+
+jk_type jk_get_type(jk_object_t j) {
+    if(j >= 0)
+        return heap[j].type;
+    else
+        return j;
 }
 
 /* Constructors **************************************************************/
 
 jk_object_t jk_make_int(int i) {
     jk_object_t res = jk_object_alloc();
-    TYPE(res) = JK_INT;
+    jk_set_type(res, JK_INT);
     AS_INT(res) = i;
     return res;
 }
 
 jk_object_t jk_make_bool(int b) {
     jk_object_t res = jk_object_alloc();
-    TYPE(res) = JK_BOOL;
+    jk_set_type(res, JK_BOOL);
     AS_BOOL(res) = b;
     return res;
 }
 
 jk_object_t jk_make_string(const char* str) {
     jk_object_t res = jk_object_alloc();
-    TYPE(res) = JK_STRING;
+    jk_set_type(res, JK_STRING);
     AS_STRING(res) = strdup(str);
     return res;
 }
 
 jk_object_t jk_make_word(const char *w) {
     jk_object_t res = jk_object_alloc();
-    TYPE(res) = JK_WORD;
+    jk_set_type(res, JK_WORD);
     AS_WORD(res) = word_from_string(w);
     return res;
 }
 
 jk_object_t jk_make_pair(jk_object_t car, jk_object_t cdr) {
     jk_object_t res = jk_object_alloc();
-    TYPE(res) = JK_QUOTATION;
+    jk_set_type(res, JK_QUOTATION);
     CAR(res) = car;
     CDR(res) = cdr;
     return res;
 }
 
 jk_object_t jk_append(jk_object_t q, jk_object_t j) {
-    if(q == -1)
-        return jk_make_pair(j, -1);
+    if(q == JK_NIL)
+        return jk_make_pair(j, JK_NIL);
     jk_object_t qi;
-    for(qi = q; CDR(qi) != -1; qi = CDR(qi));
-    CDR(qi) = jk_make_pair(j, -1);
+    for(qi = q; CDR(qi) != JK_NIL; qi = CDR(qi));
+    CDR(qi) = jk_make_pair(j, JK_NIL);
     return q;
 }
 
 jk_object_t jk_make_builtin(void (*f)(struct jk_fiber *)) {
     jk_object_t res = jk_object_alloc();
-    TYPE(res) = JK_BUILTIN;
+    jk_set_type(res, JK_BUILTIN);
     AS_BUILTIN(res) = f;
     return res;
 }
@@ -126,14 +141,14 @@ jk_object_t jk_make_fiber() {
 
 jk_object_t jk_make_error(jk_object_t j) {
     jk_object_t res = jk_object_alloc();
-    TYPE(res) = JK_ERROR;
+    jk_set_type(res, JK_ERROR);
     AS_ERROR(res) = j;
     return res;
 }
 
 // TODO: transform it to a jk_to_string function ?
 void jk_print(jk_object_t j) {
-    switch(TYPE(j)) {
+    switch(jk_get_type(j)) {
     case JK_INT:
         printf("%d", AS_INT(j));
         break;
@@ -146,11 +161,14 @@ void jk_print(jk_object_t j) {
     case JK_WORD:
         printf("%s", word_to_string(AS_WORD(j)));
         break;
+    case JK_NIL:
+        printf("[]");
+        break;
     case JK_QUOTATION: {
         printf("[");
-        for(jk_object_t ji = j; ji != -1; ji = CDR(ji)) {
+        for(jk_object_t ji = j; ji != JK_NIL; ji = CDR(ji)) {
             jk_print(CAR(ji));
-            if(CDR(ji) != -1)
+            if(CDR(ji) != JK_NIL)
                 printf(" ");
         }
         printf("]");
@@ -167,5 +185,8 @@ void jk_print(jk_object_t j) {
         jk_print(AS_ERROR(j));
         printf(">");
         break;
+    case JK_EOF:
+        break;
     }
+    
 }
