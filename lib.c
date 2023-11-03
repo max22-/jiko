@@ -4,6 +4,8 @@
 #include "heap.h"
 #include <assert.h>
 
+/* TODO: make better macros (or better mechanism to check types) */
+
 #define JK_POP_CHECK(f, x)                                                     \
     do {                                                                       \
         x = jk_pop(f);                                                         \
