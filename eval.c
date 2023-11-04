@@ -29,17 +29,38 @@ void jk_push(jk_fiber_t *f, jk_object_t j) {
     f->stack = jk_make_pair(j, f->stack);
 }
 
-jk_object_t jk_pop(jk_fiber_t *f) {
-    if (f->stack == JK_NIL)
-        return jk_make_error(jk_make_string("stack underflow"));
-    assert(jk_get_type(f->stack) == JK_QUOTATION);
-    jk_object_t res = CAR(f->stack);
-    f->stack = CDR(f->stack);
-    return res;
+int jk_raise_error(jk_fiber_t *f, const char *str) {
+    jk_push(f, jk_make_error(jk_make_string(str)));
+    return 0;
 }
 
 int jk_error_raised(jk_fiber_t *f) {
     return f->stack != -1 && jk_get_type(CAR(f->stack)) == JK_ERROR;
+}
+
+int jk_pop(jk_fiber_t *f, jk_object_t *res) {
+    if (f->stack == JK_NIL)
+        return jk_raise_error(f, "stack underflow");
+    assert(jk_get_type(f->stack) == JK_QUOTATION);
+    *res = CAR(f->stack);
+    jk_object_t garbage = f->stack;
+    f->stack = CDR(f->stack);
+    CAR(garbage) = JK_NIL;
+    CDR(garbage) = JK_NIL;
+    jk_object_free(garbage);
+    return 1;
+}
+
+int jk_pop_int(jk_fiber_t *f, jk_object_t *res) {
+    jk_object_t tmp;
+    if(!jk_pop(f, &tmp))
+        return 0;
+    if(jk_get_type(tmp) != JK_INT) {
+        jk_object_free(tmp);
+        return jk_raise_error(f, "expected integer");
+    }
+    *res = tmp;
+    return 1;
 }
 
 void jk_fiber_eval(jk_fiber_t *f, size_t limit) {
