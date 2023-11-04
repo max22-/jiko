@@ -73,7 +73,7 @@ jk_object_t jk_make_builtin(void (*f)(struct jk_fiber *));
 jk_object_t jk_make_fiber();
 jk_object_t jk_make_error(jk_object_t j);
 
-void jk_print(jk_object_t);
+void jk_print_object(jk_object_t);
 void jk_fiber_print(jk_fiber_t *f);
 
 #endif

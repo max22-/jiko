@@ -6,6 +6,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "lib.h"
+#include "io.h"
 
 struct jk_object *heap = NULL;
 static size_t heap_size = 0;
@@ -204,43 +205,47 @@ jk_object_t jk_make_error(jk_object_t j) {
 }
 
 // TODO: transform it to a jk_to_string function ?
-void jk_print(jk_object_t j) {
+void jk_print_object(jk_object_t j) {
     switch (jk_get_type(j)) {
+    case JK_UNDEFINED:
+        assert(0 && "unreachable");
+        jk_printf("<undefined>");
+        break;
     case JK_INT:
-        printf("%d", AS_INT(j));
+        jk_printf("%d", AS_INT(j));
         break;
     case JK_BOOL:
-        printf("%s", AS_BOOL(j) ? "true" : "false");
+        jk_printf("%s", AS_BOOL(j) ? "true" : "false");
         break;
     case JK_STRING:
-        printf("\"%s\"", AS_STRING(j));
+        jk_printf("\"%s\"", AS_STRING(j));
         break;
     case JK_WORD:
-        printf("%s", word_to_string(AS_WORD(j)));
+        jk_printf("%s", word_to_string(AS_WORD(j)));
         break;
     case JK_NIL:
-        printf("[]");
+        jk_printf("[]");
         break;
     case JK_QUOTATION: {
-        printf("[");
+        jk_printf("[");
         for (jk_object_t ji = j; ji != JK_NIL; ji = CDR(ji)) {
-            jk_print(CAR(ji));
+            jk_print_object(CAR(ji));
             if (CDR(ji) != JK_NIL)
-                printf(" ");
+                jk_printf(" ");
         }
-        printf("]");
+        jk_printf("]");
         break;
     }
     case JK_BUILTIN:
-        printf("<builtin 0x%lx>", (intptr_t)AS_BUILTIN(j));
+        jk_printf("<builtin 0x%lx>", (intptr_t)AS_BUILTIN(j));
         break;
     case JK_FIBER:
-        printf("<fiber 0x%lx>", (intptr_t)AS_FIBER(j));
+        jk_printf("<fiber 0x%lx>", (intptr_t)AS_FIBER(j));
         break;
     case JK_ERROR:
-        printf("<error ");
-        jk_print(AS_ERROR(j));
-        printf(">");
+        jk_printf("<error ");
+        jk_print_object(AS_ERROR(j));
+        jk_printf(">");
         break;
     case JK_EOF:
         break;
@@ -260,20 +265,20 @@ static jk_object_t prev(jk_object_t head, jk_object_t j) {
 static void print_reversed(jk_object_t j) {
     assert(jk_get_type(j) == JK_QUOTATION || j == JK_NIL);
     if (j == JK_NIL)
-        printf("[]");
+        jk_printf("[]");
     else {
-        printf("[");
+        jk_printf("[");
         for (jk_object_t ji = prev(j, JK_NIL); ji != j; ji = prev(j, ji)) {
-            jk_print(CAR(ji));
-            printf(" ");
+            jk_print_object(CAR(ji));
+            jk_printf(" ");
         }
-        jk_print(CAR(j));
-        printf("]");
+        jk_print_object(CAR(j));
+        jk_printf("]");
     }
 }
 
 void jk_fiber_print(jk_fiber_t *f) {
     print_reversed(f->stack);
-    printf(" : ");
-    jk_print(f->queue);
+    jk_printf(" : ");
+    jk_print_object(f->queue);
 }

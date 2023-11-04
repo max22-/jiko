@@ -2,10 +2,10 @@
 #include <stdlib.h>
 #include "jiko.h"
 
-void print(const char *s) { printf("%s", s); }
+int (*jk_printf)(const char *, ...) = printf;
 
 void jiko_panic(const char *msg) {
-    printf("panic: %s\n", msg);
+    jk_printf("panic: %s\n", msg);
     jiko_cleanup();
     exit(1);
 }
@@ -22,13 +22,13 @@ int main() {
          j = parser_parse(parser)) {
         jk_fiber_enqueue(f, j);
     }
-    printf("evaluating...\n");
+    jk_printf("evaluating...\n");
     jk_fiber_eval(f, 1000);
     jk_fiber_print(f);
-    printf("\n");
-    printf("freeing fiber\n");
+    jk_printf("\n");
+    jk_printf("freeing fiber\n");
     jk_fiber_free(f);
-    printf("j=%d\n", j);
+    jk_printf("j=%d\n", j);
     parser_free(parser);
     jiko_cleanup();
 }

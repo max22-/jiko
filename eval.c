@@ -3,6 +3,8 @@
 #include "heap.h"
 #include "types.h"
 #include <assert.h>
+#include <stdio.h>
+#include "io.h"
 
 void jk_fiber_enqueue(jk_fiber_t *f, jk_object_t j) {
     f->queue = jk_append(f->queue, j);
@@ -46,6 +48,9 @@ void jk_fiber_eval(jk_fiber_t *f, size_t limit) {
             return;
         jk_object_t j = jk_fiber_dequeue(f);
         switch (jk_get_type(j)) {
+        case JK_UNDEFINED:
+            assert(0 && "unreachable");
+            break;
         case JK_EOF:
             goto loop_end;
         case JK_NIL:
@@ -80,7 +85,7 @@ void jk_fiber_eval(jk_fiber_t *f, size_t limit) {
         }
         }
         jk_fiber_print(f);
-        printf("\n");
+        jk_printf("\n");
     }
 loop_end:
     return;
