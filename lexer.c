@@ -153,7 +153,7 @@ static token_t *lexer_word(lexer_t *lex) {
         if (lex->pos >= lex->text_len)
             break;
         char c = lex->text[lex->pos];
-        if (isspace(c) || c == '[' || c == ']')
+        if (isspace(c) || c == '[' || c == ']' || c == '"')
             break;
         next_char(lex);
     }
