@@ -1,10 +1,10 @@
 #include "eval.h"
 #include "env.h"
 #include "heap.h"
+#include "io.h"
 #include "types.h"
 #include <assert.h>
 #include <stdio.h>
-#include "io.h"
 
 void jk_fiber_enqueue(jk_fiber_t *f, jk_object_t j) {
     f->queue = jk_append(f->queue, j);
@@ -53,9 +53,9 @@ int jk_pop(jk_fiber_t *f, jk_object_t *res) {
 
 int jk_pop_int(jk_fiber_t *f, jk_object_t *res) {
     jk_object_t tmp;
-    if(!jk_pop(f, &tmp))
+    if (!jk_pop(f, &tmp))
         return 0;
-    if(jk_get_type(tmp) != JK_INT) {
+    if (jk_get_type(tmp) != JK_INT) {
         jk_object_free(tmp);
         return jk_raise_error(f, "expected integer");
     }

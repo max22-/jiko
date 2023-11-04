@@ -6,9 +6,9 @@
 
 void add(jk_fiber_t *f) {
     jk_object_t a, b;
-    if(!jk_pop_int(f, &b))
+    if (!jk_pop_int(f, &b))
         return;
-    if(!jk_pop_int(f, &a)) {
+    if (!jk_pop_int(f, &a)) {
         jk_object_free(b);
         return;
     }
@@ -20,9 +20,9 @@ void add(jk_fiber_t *f) {
 
 void sub(jk_fiber_t *f) {
     jk_object_t a, b;
-    if(!jk_pop_int(f, &b))
+    if (!jk_pop_int(f, &b))
         return;
-    if(!jk_pop_int(f, &a)) {
+    if (!jk_pop_int(f, &a)) {
         jk_object_free(b);
         return;
     }
@@ -34,9 +34,9 @@ void sub(jk_fiber_t *f) {
 
 void mul(jk_fiber_t *f) {
     jk_object_t a, b;
-    if(!jk_pop_int(f, &b))
+    if (!jk_pop_int(f, &b))
         return;
-    if(!jk_pop_int(f, &a)) {
+    if (!jk_pop_int(f, &a)) {
         jk_object_free(b);
         return;
     }
@@ -48,13 +48,13 @@ void mul(jk_fiber_t *f) {
 
 void _div(jk_fiber_t *f) {
     jk_object_t a, b;
-    if(!jk_pop_int(f, &b))
+    if (!jk_pop_int(f, &b))
         return;
-    if(!jk_pop_int(f, &a)) {
+    if (!jk_pop_int(f, &a)) {
         jk_object_free(b);
         return;
     }
-    if(AS_INT(b) == 0) {
+    if (AS_INT(b) == 0) {
         jk_object_free(b);
         jk_object_free(a);
         jk_raise_error(f, "division by zero");
@@ -66,28 +66,26 @@ void _div(jk_fiber_t *f) {
     jk_push(f, jk_make_int(c));
 }
 
-
-
 void dup(jk_fiber_t *f) {
     jk_object_t j;
-    if(!jk_pop(f, &j))
+    if (!jk_pop(f, &j))
         return;
     jk_object_t jc = jk_object_clone(j);
     jk_push(f, j);
     jk_push(f, jc);
 }
 
-void drop(jk_fiber_t *f) { 
+void drop(jk_fiber_t *f) {
     jk_object_t j;
-    if(jk_pop(f, &j))
-        jk_object_free(j); 
+    if (jk_pop(f, &j))
+        jk_object_free(j);
 }
 
 void swap(jk_fiber_t *f) {
     jk_object_t a, b;
-    if(!jk_pop(f, &b))
+    if (!jk_pop(f, &b))
         return;
-    if(!jk_pop(f, &a)) {
+    if (!jk_pop(f, &a)) {
         jk_object_free(b);
         return;
     }

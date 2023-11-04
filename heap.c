@@ -1,3 +1,5 @@
+#include "io.h"
+#include "lib.h"
 #include "misc.h"
 #include "types.h"
 #include "word_table.h"
@@ -5,8 +7,6 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include "lib.h"
-#include "io.h"
 
 struct jk_object *heap = NULL;
 static size_t heap_size = 0;

@@ -6,7 +6,7 @@ void jk_fiber_eval(jk_fiber_t *f, size_t limit);
 int jk_raise_error(jk_fiber_t *f, const char *str);
 void jk_push(jk_fiber_t *f, jk_object_t j);
 
-/* Pop with error handling 
+/* Pop with error handling
    return value :
    1 : success
    0 : failure

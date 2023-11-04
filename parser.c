@@ -1,8 +1,8 @@
 #include "parser.h"
 #include "heap.h"
 #include <assert.h>
-#include <stdlib.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 static void next(parser_t *p);
