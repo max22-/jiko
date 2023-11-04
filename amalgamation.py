@@ -54,3 +54,10 @@ with open(f"amalgamation/{lib_name}.h", "w") as output:
         if path.endswith(".c"):
             output.write("#endif\n")
         f.close()
+
+with open("main.c", "r") as main_in:
+    with open("amalgamation/main.c", "w") as main_out:
+        for line in main_in:
+            if line.strip() == f"#include \"{lib_name}.h\"":
+                main_out.write(f"#define {lib_name.upper()}_IMPLEMENTATION\n")
+            main_out.write(line)

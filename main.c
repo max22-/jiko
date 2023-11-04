@@ -1,7 +1,6 @@
-#include "jiko.h"
-#include "lib.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include "jiko.h"
 
 void print(const char *s) { printf("%s", s); }
 
@@ -18,7 +17,6 @@ int main() {
     parser_t *parser = parser_new(lex);
     jk_object_t j;
     jk_fiber_t *f = jk_fiber_new();
-    register_lib(f);
     for (j = parser_parse(parser);
          jk_get_type(j) != JK_ERROR && jk_get_type(j) != JK_EOF;
          j = parser_parse(parser)) {

@@ -5,6 +5,7 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include "lib.h"
 
 struct jk_object *heap = NULL;
 static size_t heap_size = 0;
@@ -111,6 +112,7 @@ jk_fiber_t *jk_fiber_new() {
     res->stack = JK_NIL;
     res->queue = JK_NIL;
     res->env_stack = jk_make_pair(JK_NIL, JK_NIL);
+    register_lib(res);
     return res;
 }
 
