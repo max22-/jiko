@@ -2,6 +2,8 @@
 #include "heap.h"
 #include <assert.h>
 #include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
 
 static void next(parser_t *p);
 
@@ -19,6 +21,15 @@ void parser_free(parser_t *p) {
     if (p->look)
         token_free(p->look);
     free(p);
+}
+
+static jk_object_t jk_gen_parse_error(parser_t *p, const char *msg) {
+    char *err = malloc(strlen(msg) + 1 + 64);
+    assert(err);
+    sprintf(err, "%d:%d: %s", p->look->line, p->look->column, msg);
+    jk_object_t res = jk_make_error(jk_make_string(err));
+    free(err);
+    return res;
 }
 
 static void next(parser_t *p) {
@@ -52,11 +63,10 @@ static jk_object_t quotation(parser_t *p) {
         switch (p->look->type) {
         case TOK_ERROR:
             jk_object_free(res);
-            return jk_make_error(jk_make_string(p->look->value));
+            return jk_gen_parse_error(p, p->look->value);
         case TOK_EOF:
             jk_object_free(res);
-            return jk_make_error(
-                jk_make_string("unexpected EOF inside quotation"));
+            return jk_gen_parse_error(p, "unexpected EOF inside quotation");
         case TOK_CLOSE_BRACKET:
             goto parsed;
         default: {
@@ -85,12 +95,12 @@ jk_object_t parser_parse(parser_t *p) {
     case TOK_OPEN_BRACKET:
         return quotation(p);
     case TOK_CLOSE_BRACKET:
-        return jk_make_error(jk_make_string("parse error: unexpected ']'"));
+        return jk_gen_parse_error(p, "parse error: unexpected ']'");
     case TOK_ERROR:
-        return jk_make_error(jk_make_string(p->look->value));
+        return jk_gen_parse_error(p, p->look->value);
     case TOK_EOF:
         return JK_EOF;
     default:
-        return jk_make_error(jk_make_string("unreachable"));
+        return jk_gen_parse_error(p, "unreachable");
     }
 }

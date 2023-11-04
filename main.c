@@ -18,14 +18,20 @@ int main() {
     jk_object_t j;
     jk_fiber_t *f = jk_fiber_new();
     for (j = parser_parse(parser);
-         jk_get_type(j) != JK_ERROR && jk_get_type(j) != JK_EOF;
+         jk_get_type(j) != JK_EOF;
          j = parser_parse(parser)) {
+        if(jk_get_type(j) == JK_ERROR) {
+            printf("%s\n", AS_STRING(AS_ERROR(j)));
+            goto cleanup;
+        }
         jk_fiber_enqueue(f, j);
     }
     jk_printf("evaluating...\n");
     jk_fiber_eval(f, 1000);
     jk_fiber_print(f);
     jk_printf("\n");
+
+    cleanup:
     jk_printf("freeing fiber\n");
     jk_fiber_free(f);
     jk_printf("j=%d\n", j);
