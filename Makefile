@@ -20,6 +20,7 @@ run: $(BIN)
 
 clean:
 	rm -f $(BIN) $(OBJS) $(DEPS)
+	make -C amalgamation clean
 
 format:
 	clang-format -i *.h *.c

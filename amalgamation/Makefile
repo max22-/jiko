@@ -19,6 +19,6 @@ run: $(BIN)
 	./$(BIN)
 
 clean:
-	rm -f $(BIN) $(OBJS) $(DEPS)
+	rm -f $(BIN) $(OBJS) $(DEPS) jiko.h main.c
 
 -include $(DEPS)
