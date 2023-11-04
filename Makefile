@@ -13,7 +13,7 @@ $(BIN): $(OBJS)
 %.o: %.c
 	$(CC) -c $(CFLAGS) $< -o $@
 
-.PHONY: run clean
+.PHONY: run clean format todo memcheck amalgamate
 
 run: $(BIN)
 	./$(BIN)
@@ -32,5 +32,9 @@ memcheck: $(BIN)
 			--track-origins=yes --verbose \
          	--log-file=valgrind-out.txt \
          	./$(BIN)
+
+amalgamate:
+	python amalgamation.py
+	make -C amalgamation
 
 -include $(DEPS)

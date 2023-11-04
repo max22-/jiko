@@ -84,7 +84,7 @@ void lexer_free(lexer_t *lex) {
     free(lex);
 }
 
-static token_t *open_bracket(lexer_t *lex) {
+static token_t *lexer_open_bracket(lexer_t *lex) {
     token_t *res =
         token_new(TOK_OPEN_BRACKET, "[", lex->start_line, lex->start_column);
     next_char(lex);
@@ -92,7 +92,7 @@ static token_t *open_bracket(lexer_t *lex) {
     return res;
 }
 
-static token_t *close_bracket(lexer_t *lex) {
+static token_t *lexer_close_bracket(lexer_t *lex) {
     token_t *res =
         token_new(TOK_CLOSE_BRACKET, "]", lex->start_line, lex->start_column);
     next_char(lex);
@@ -100,7 +100,7 @@ static token_t *close_bracket(lexer_t *lex) {
     return res;
 }
 
-static token_t *integer(lexer_t *lex) {
+static token_t *lexer_integer(lexer_t *lex) {
     while (lex->pos < lex->text_len && isdigit(lex->text[lex->pos]))
         next_char(lex);
     char *strval = strndup(&lex->text[lex->start], lex->pos - lex->start);
@@ -111,7 +111,7 @@ static token_t *integer(lexer_t *lex) {
     return res;
 }
 
-static token_t *string(lexer_t *lex) {
+static token_t *lexer_string(lexer_t *lex) {
     next_char(lex); /* we match the '"' */
     while (1) {
         if (lex->pos >= lex->text_len)
@@ -148,7 +148,7 @@ static token_t *string(lexer_t *lex) {
     return res;
 }
 
-static token_t *word(lexer_t *lex) {
+static token_t *lexer_word(lexer_t *lex) {
     while (1) {
         if (lex->pos >= lex->text_len)
             break;
@@ -171,13 +171,13 @@ token_t *lexer_next(lexer_t *lex) {
         return token_new(TOK_EOF, "", lex->start_line, lex->start_column);
     char c = lex->text[lex->pos];
     if (c == '[')
-        return open_bracket(lex);
+        return lexer_open_bracket(lex);
     else if (c == ']')
-        return close_bracket(lex);
+        return lexer_close_bracket(lex);
     else if (isdigit(c))
-        return integer(lex);
+        return lexer_integer(lex);
     else if (c == '"')
-        return string(lex);
+        return lexer_string(lex);
     else
-        return word(lex);
+        return lexer_word(lex);
 }
