@@ -7,6 +7,7 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 struct jk_object *heap = NULL;
 static size_t heap_size = 0;
@@ -204,6 +205,60 @@ jk_object_t jk_make_error(jk_object_t j) {
     return res;
 }
 
+#define MAYBE_GROW()                                                           \
+    do {                                                                       \
+        if (o >= mem_amount) {                                                 \
+            mem_amount += len;                                                 \
+            res = realloc(res, mem_amount);                                    \
+            if (!res)                                                          \
+                return NULL;                                                   \
+        }                                                                      \
+    } while (0)
+
+char *jk_escape_string(const char *str) {
+    const size_t len = strlen(str);
+    size_t mem_amount = len < 2 ? 2 : len;
+    char *res = malloc(mem_amount); /* will grow later */
+    size_t o = 0;
+    res[o++] = '"';
+    MAYBE_GROW();
+    for (size_t i = 0; i < len; i++) {
+        MAYBE_GROW();
+        switch(str[i]) {
+            case '\n':
+                res[o++] = '\\';
+                res[o++] = 'n';
+                break;
+            case '\r':
+                res[o++] = '\\';
+                res[o++] = 'r';
+                break;
+            case '\t':
+                res[o++] = '\\';
+                res[o++] = 't';
+                break;
+            case '"':
+                res[o++] = '\\';
+                res[o++] = '"';
+                break;
+            case '\\':
+                res[o++] = '\\';
+                res[o++] = '\\';
+                break;
+            default:
+                res[o++] = str[i];
+        }
+    }
+    MAYBE_GROW();
+    res[o++] = '"';
+    res[o++] = 0;
+    res = realloc(res, o);
+    assert(res);
+    return res;
+}
+
+#undef MAYBE_GROW
+
 // TODO: transform it to a jk_to_string function ?
 void jk_print_object(jk_object_t j) {
     switch (jk_get_type(j)) {
@@ -217,9 +272,12 @@ void jk_print_object(jk_object_t j) {
     case JK_BOOL:
         jk_printf("%s", AS_BOOL(j) ? "true" : "false");
         break;
-    case JK_STRING:
-        jk_printf("\"%s\"", AS_STRING(j));
+    case JK_STRING: {
+        char *escaped = jk_escape_string(AS_STRING(j));
+        jk_printf("%s", escaped);
+        free(escaped);
         break;
+    }
     case JK_WORD:
         jk_printf("%s", word_to_string(AS_WORD(j)));
         break;
