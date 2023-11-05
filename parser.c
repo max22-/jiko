@@ -86,7 +86,7 @@ static char *jk_unescape_string(const char *str) {
 
 static jk_object_t string(parser_t *p) {
     char *str = jk_unescape_string(p->look->value);
-    if(!str)
+    if (!str)
         return jk_gen_parse_error(p, "failed to unescape string");
     jk_object_t res = jk_make_string(str);
     next(p);

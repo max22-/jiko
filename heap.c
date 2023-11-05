@@ -224,29 +224,29 @@ char *jk_escape_string(const char *str) {
     MAYBE_GROW();
     for (size_t i = 0; i < len; i++) {
         MAYBE_GROW();
-        switch(str[i]) {
-            case '\n':
-                res[o++] = '\\';
-                res[o++] = 'n';
-                break;
-            case '\r':
-                res[o++] = '\\';
-                res[o++] = 'r';
-                break;
-            case '\t':
-                res[o++] = '\\';
-                res[o++] = 't';
-                break;
-            case '"':
-                res[o++] = '\\';
-                res[o++] = '"';
-                break;
-            case '\\':
-                res[o++] = '\\';
-                res[o++] = '\\';
-                break;
-            default:
-                res[o++] = str[i];
+        switch (str[i]) {
+        case '\n':
+            res[o++] = '\\';
+            res[o++] = 'n';
+            break;
+        case '\r':
+            res[o++] = '\\';
+            res[o++] = 'r';
+            break;
+        case '\t':
+            res[o++] = '\\';
+            res[o++] = 't';
+            break;
+        case '"':
+            res[o++] = '\\';
+            res[o++] = '"';
+            break;
+        case '\\':
+            res[o++] = '\\';
+            res[o++] = '\\';
+            break;
+        default:
+            res[o++] = str[i];
         }
     }
     MAYBE_GROW();
