@@ -35,16 +35,16 @@ static jk_object_t jk_lookup_env(jk_object_t env, word_t w) {
     return JK_UNDEFINED;
 }
 
-void jk_define(jk_fiber_t *f, const char *w, jk_object_t body) {
+void jk_define(jk_fiber_t *f, jk_object_t w, jk_object_t body) {
     jk_object_t env_stack = f->env_stack;
     assert(env_stack != JK_NIL);
     jk_object_t top_level = CAR(env_stack);
     /* TODO: implement old definition replacement */
     /*
-    jk_object_t prev = jk_lookup_env(top_level, word_from_string(w));
+    jk_object_t prev = jk_lookup_env(top_level, w);
     if(prev == JK_UNDEFINED) {
     */
-    jk_object_t entry = jk_make_pair(jk_make_word_from_string(w), body);
+    jk_object_t entry = jk_make_pair(w, body);
     top_level = jk_make_pair(entry, top_level);
     CAR(env_stack) = top_level;
     /*

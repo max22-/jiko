@@ -63,6 +63,18 @@ int jk_pop_int(jk_fiber_t *f, jk_object_t *res) {
     return 1;
 }
 
+int jk_pop_word(jk_fiber_t *f, jk_object_t *res) {
+    jk_object_t tmp;
+    if (!jk_pop(f, &tmp))
+        return 0;
+    if (jk_get_type(tmp) != JK_WORD) {
+        jk_object_free(tmp);
+        return jk_raise_error(f, "expected word");
+    }
+    *res = tmp;
+    return 1;
+}
+
 void jk_fiber_eval(jk_fiber_t *f, size_t limit) {
     while (limit--) {
         if (jk_error_raised(f))
