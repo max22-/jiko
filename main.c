@@ -12,9 +12,9 @@ void jiko_panic(const char *msg) {
 
 int main() {
     jiko_init();
-    lexer_t *lex = lexer_new(
-        "1 2 3 + dup * swap [ a b [c d] def ] \"ab\\\"c\\\\\n\" dup + []");
-    parser_t *parser = parser_new(lex);
+    const char *input =
+        "1 2 3 + dup * swap [ a b [c d] def ] \"ab\\\"c\\\\\n\" dup + []";
+    parser_t *parser = parser_new(input);
     jk_object_t j;
     jk_fiber_t *f = jk_fiber_new();
     for (j = parser_parse(parser); jk_get_type(j) != JK_EOF;

@@ -7,10 +7,10 @@
 
 static void next(parser_t *p);
 
-parser_t *parser_new(lexer_t *lex) {
+parser_t *parser_new(const char *input) {
     parser_t *res = malloc(sizeof(parser_t));
     assert(res);
-    res->lexer = lex;
+    res->lexer = lexer_new(input);
     res->look = NULL;
     next(res);
     return res;
