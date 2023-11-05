@@ -11,7 +11,9 @@ char *strdup(const char *str) {
 
 char *strndup(const char *str, size_t n) {
     size_t len;
+    /* clang-format off */
     for (len = 0; len < n && str[len]; len++);
+    /* clang-format on */
     char *res = malloc(len + 1);
     assert(res && "strndup: malloc failed");
     memcpy(res, str, len);
