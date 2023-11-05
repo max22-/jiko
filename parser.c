@@ -23,12 +23,13 @@ void parser_free(parser_t *p) {
     free(p);
 }
 
-static jk_object_t jk_gen_parse_error(parser_t *p, const char *msg) {
+static jk_parse_result_t jk_gen_parse_error(parser_t *p, enum jk_parse_result_type type, const char *msg) {
+    jk_parse_result_t res;
     char *err = malloc(strlen(msg) + 1 + 64);
     assert(err);
     sprintf(err, "%d:%d: %s", p->look->line, p->look->column, msg);
-    jk_object_t res = jk_make_error(jk_make_string(err));
-    free(err);
+    res.type = type;
+    res.result.error_msg = err;
     return res;
 }
 
@@ -38,8 +39,11 @@ static void next(parser_t *p) {
     p->look = lexer_next(p->lexer);
 }
 
-static jk_object_t integer(parser_t *p) {
-    jk_object_t res = jk_make_int(atoi(p->look->value));
+static jk_parse_result_t integer(parser_t *p) {
+    jk_parse_result_t res = {
+        .type = JK_PARSE_OK,
+        .result.j = jk_make_int(atoi(p->look->value))
+    };
     next(p);
     return res;
 }
@@ -84,51 +88,57 @@ static char *jk_unescape_string(const char *str) {
     return res;
 }
 
-static jk_object_t string(parser_t *p) {
+static jk_parse_result_t string(parser_t *p) {
     char *str = jk_unescape_string(p->look->value);
     if (!str)
-        return jk_gen_parse_error(p, "failed to unescape string");
-    jk_object_t res = jk_make_string(str);
+        return jk_gen_parse_error(p, JK_PARSE_ERROR_UNRECOVERABLE, "failed to unescape string");
+    jk_object_t j = jk_make_string(str);
+    jk_parse_result_t res = {.type=JK_PARSE_OK, .result.j=j};
     free(str);
     next(p);
     return res;
 }
 
-static jk_object_t word(parser_t *p) {
-    jk_object_t res = jk_make_word_from_string(p->look->value);
+static jk_parse_result_t word(parser_t *p) {
+    jk_parse_result_t res = {
+        .type=JK_PARSE_OK,
+        .result.j = jk_make_word_from_string(p->look->value)
+    };
     next(p);
     return res;
 }
 
-static jk_object_t quotation(parser_t *p) {
-    jk_object_t res = JK_NIL;
+static jk_parse_result_t quotation(parser_t *p) {
+    jk_object_t q = JK_NIL;
     next(p); // we match the '['
     while (1) {
         switch (p->look->type) {
         case TOK_ERROR:
-            jk_object_free(res);
-            return jk_gen_parse_error(p, p->look->value);
+            jk_object_free(q);
+            return jk_gen_parse_error(p, JK_PARSE_ERROR_UNRECOVERABLE, p->look->value);
         case TOK_EOF:
-            jk_object_free(res);
-            return jk_gen_parse_error(p, "unexpected EOF inside quotation");
+            jk_object_free(q);
+            return jk_gen_parse_error(p, JK_PARSE_ERROR_EOF, "unexpected EOF inside quotation");
         case TOK_CLOSE_BRACKET:
             goto parsed;
         default: {
-            jk_object_t j = parser_parse(p);
-            if (jk_get_type(j) == JK_ERROR) {
-                jk_object_free(res);
-                return j;
+            jk_parse_result_t pr = parser_parse(p);
+            if (pr.type != JK_PARSE_OK) {
+                jk_object_free(q);
+                return pr;
             }
-            res = jk_append(res, j);
+            q = jk_append(q, pr.result.j);
         }
         }
     }
 parsed:
     next(p); // we match the ']'
+    jk_parse_result_t res = {.type=JK_PARSE_OK, .result.j = q};
     return res;
 }
 
-jk_object_t parser_parse(parser_t *p) {
+jk_parse_result_t parser_parse(parser_t *p) {
+    jk_parse_result_t res;
     switch (p->look->type) {
     case TOK_INTEGER:
         return integer(p);
@@ -139,12 +149,19 @@ jk_object_t parser_parse(parser_t *p) {
     case TOK_OPEN_BRACKET:
         return quotation(p);
     case TOK_CLOSE_BRACKET:
-        return jk_gen_parse_error(p, "parse error: unexpected ']'");
+        return jk_gen_parse_error(p, JK_PARSE_ERROR_UNRECOVERABLE, "parse error: unexpected ']'");
     case TOK_ERROR:
-        return jk_gen_parse_error(p, p->look->value);
+        return jk_gen_parse_error(p, JK_PARSE_ERROR_UNRECOVERABLE, p->look->value);
     case TOK_EOF:
-        return JK_EOF;
+        res.type = JK_PARSE_EOF_OK;
+        res.result.error_msg = NULL;
+        return res;
     default:
-        return jk_gen_parse_error(p, "unreachable");
+        return jk_gen_parse_error(p, JK_PARSE_ERROR_UNRECOVERABLE, "unreachable");
     }
+}
+
+void jk_parse_result_free(jk_parse_result_t pr) {
+    if(pr.type != JK_PARSE_OK)
+        free((void*)pr.result.error_msg);
 }

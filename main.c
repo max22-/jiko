@@ -15,25 +15,44 @@ int main() {
     const char *input =
         "1 2 3 + dup * swap [ a b [c d] def ] \"ab\\\"c\\\\\n\" dup + []";
     parser_t *parser = parser_new(input);
-    jk_object_t j;
+    
     jk_fiber_t *f = jk_fiber_new();
-    for (j = parser_parse(parser); jk_get_type(j) != JK_EOF;
-         j = parser_parse(parser)) {
-        if (jk_get_type(j) == JK_ERROR) {
-            printf("%s\n", AS_STRING(AS_ERROR(j)));
-            goto cleanup;
+    while(1) {
+        jk_parse_result_t pr = parser_parse(parser);
+        switch(pr.type) {
+            case JK_PARSE_OK:
+                jk_fiber_enqueue(f, pr.result.j);
+                break;
+            case JK_PARSE_EOF_OK:
+                jk_parse_result_free(pr);
+                jk_printf("evaluating...\n");
+                jk_fiber_eval(f, 1000);
+                jk_fiber_print(f);
+                jk_printf("\n");
+                goto cleanup;
+                break;
+            case JK_PARSE_ERROR_EOF:
+                jk_printf(pr.result.error_msg);
+                jk_printf("\n");
+                jk_parse_result_free(pr);
+                goto cleanup;
+                break;
+            case JK_PARSE_ERROR_UNRECOVERABLE:
+                jk_printf(pr.result.error_msg);
+                jk_printf("\n");
+                jk_parse_result_free(pr);
+                goto cleanup;
+                break;
         }
-        jk_fiber_enqueue(f, j);
     }
     jk_printf("evaluating...\n");
     jk_fiber_eval(f, 1000);
     jk_fiber_print(f);
-    jk_printf("\n");
+    
 
 cleanup:
-    jk_printf("freeing fiber\n");
+    jk_printf("cleanup...\n");
     jk_fiber_free(f);
-    jk_printf("j=%d\n", j);
     parser_free(parser);
     jiko_cleanup();
 }
