@@ -21,7 +21,9 @@ typedef struct parser {
     token_t *look;
 } parser_t;
 
-parser_t *parser_new(const char *input);
+parser_t *parser_new();
+void parser_add(parser_t *p, const char *text);
+void parser_set_text(parser_t *p, const char *text);
 void parser_free(parser_t *);
 jk_parse_result_t parser_parse(parser_t *);
 void jk_parse_result_free(jk_parse_result_t);

@@ -19,6 +19,14 @@ token_t *token_new(token_type type, const char *value, unsigned int line,
     return res;
 }
 
+token_t *token_clone(token_t* t) {
+    return token_new(
+            t->type, 
+            t->value,
+            t->line,
+            t->column);
+}
+
 void token_free(token_t *token) {
     free((void *)token->value);
     free(token);
@@ -68,11 +76,11 @@ static void skip_space(lexer_t *lex) {
 }
 
 /* Duplicates text */
-lexer_t *lexer_new(const char *text) {
+lexer_t *lexer_new() {
     lexer_t *res = (lexer_t *)malloc(sizeof(lexer_t));
     assert(res && "lexer_new: malloc failed");
-    res->text = strdup(text);
-    res->text_len = strlen(text);
+    res->text = NULL;
+    res->text_len = 0;
     res->start_line = res->start_column = 1;
     res->pos_line = res->pos_column = 1;
     res->start = res->pos = 0;
@@ -82,6 +90,23 @@ lexer_t *lexer_new(const char *text) {
 void lexer_free(lexer_t *lex) {
     free((void *)lex->text);
     free(lex);
+}
+
+void lexer_set_text(lexer_t *lex, const char *text) {
+    if(lex->text != NULL)
+        free((void*)lex->text);
+    lex->text = strdup(text);
+    lex->text_len = strlen(lex->text);
+    lex->start_column = 1;
+    lex->pos_column = 1;
+    lex->start = lex->pos = 0;
+}
+
+void lexer_add(lexer_t *lex, const char *text) {
+    lex->text = realloc((char*)lex->text, lex->text_len + strlen(text) + 1);
+    assert(lex->text);
+    strcat((char*)lex->text, text);
+    lex->text_len = strlen(lex->text);
 }
 
 static token_t *lexer_open_bracket(lexer_t *lex) {
@@ -115,14 +140,14 @@ static token_t *lexer_string(lexer_t *lex) {
     next_char(lex); /* we match the '"' */
     while (1) {
         if (lex->pos >= lex->text_len)
-            return token_new(TOK_ERROR, "Unexpected EOF in string literal",
+            return token_new(TOK_ERROR, "Unexpected end of line in string literal",
                              lex->start_line, lex->start_column);
         if (lex->text[lex->pos] == '"')
             break;
         if (lex->text[lex->pos] == '\\') {
             next_char(lex);
             if (lex->pos >= lex->text_len)
-                return token_new(TOK_ERROR, "Unexpected EOF in string literal",
+                return token_new(TOK_ERROR, "Unexpected end of line in string literal",
                                  lex->start_line, lex->start_column);
             switch (lex->text[lex->pos]) {
             case 'n':

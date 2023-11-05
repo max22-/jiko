@@ -7,13 +7,22 @@
 
 static void next(parser_t *p);
 
-parser_t *parser_new(const char *input) {
+parser_t *parser_new() {
     parser_t *res = malloc(sizeof(parser_t));
     assert(res);
-    res->lexer = lexer_new(input);
+    res->lexer = lexer_new();
     res->look = NULL;
     next(res);
     return res;
+}
+
+void parser_add(parser_t *p, const char *text) {
+    lexer_add(p->lexer, text);
+}
+
+void parser_set_text(parser_t *p, const char *text) {
+    lexer_set_text(p->lexer, text);
+    next(p);
 }
 
 void parser_free(parser_t *p) {
@@ -141,26 +150,43 @@ parsed:
 
 jk_parse_result_t parser_parse(parser_t *p) {
     jk_parse_result_t res;
+    lexer_t saved_lexer = *p->lexer;
+    token_t *saved_look = token_clone(p->look);
+
     switch (p->look->type) {
     case TOK_INTEGER:
+        token_free(saved_look);
         return integer(p);
     case TOK_STRING:
+        token_free(saved_look);
         return string(p);
     case TOK_WORD:
+        token_free(saved_look);
         return word(p);
     case TOK_OPEN_BRACKET:
-        return quotation(p);
+        res = quotation(p);
+        /* Recoverable errors (EOF inside quotation) only happen here */
+        if(res.type == JK_PARSE_ERROR_EOF) {
+            *p->lexer = saved_lexer;
+            token_free(p->look);
+            p->look = saved_look;
+        }
+        return res;
     case TOK_CLOSE_BRACKET:
+        token_free(saved_look);
         return jk_gen_parse_error(p, JK_PARSE_ERROR_UNRECOVERABLE,
                                   "parse error: unexpected ']'");
     case TOK_ERROR:
+        token_free(saved_look);
         return jk_gen_parse_error(p, JK_PARSE_ERROR_UNRECOVERABLE,
                                   p->look->value);
     case TOK_EOF:
+        token_free(saved_look);
         res.type = JK_PARSE_EOF_OK;
         res.result.error_msg = NULL;
         return res;
     default:
+        token_free(saved_look);
         return jk_gen_parse_error(p, JK_PARSE_ERROR_UNRECOVERABLE,
                                   "unreachable");
     }

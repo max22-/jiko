@@ -23,6 +23,7 @@ typedef struct token {
 
 token_t *token_new(token_type type, const char *value, unsigned int line,
                    unsigned int column);
+token_t *token_clone(token_t*);
 void token_free(token_t *token);
 void token_print(token_t *token, void (*printer)(const char *));
 
@@ -35,8 +36,10 @@ typedef struct lexer {
     unsigned int start_line, start_column, pos_line, pos_column;
 } lexer_t;
 
-lexer_t *lexer_new(const char *text);
+lexer_t *lexer_new();
 void lexer_free(lexer_t *lex);
+void lexer_set_text(lexer_t *lex, const char *text) ;
+void lexer_add(lexer_t *lex, const char *text);
 token_t *lexer_next(lexer_t *lexer);
 
 #endif
