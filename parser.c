@@ -44,8 +44,7 @@ static jk_object_t integer(parser_t *p) {
     return res;
 }
 
-static char *unescape_string(const char *str) {
-    printf("unescaping %s\n", str);
+static char *jk_unescape_string(const char *str) {
     char *res = malloc(strlen(str) + 1);
     char *ptr = res;
     assert(*str == '"');
@@ -86,7 +85,7 @@ static char *unescape_string(const char *str) {
 }
 
 static jk_object_t string(parser_t *p) {
-    char *str = unescape_string(p->look->value);
+    char *str = jk_unescape_string(p->look->value);
     if(!str)
         return jk_gen_parse_error(p, "failed to unescape string");
     jk_object_t res = jk_make_string(str);
