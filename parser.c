@@ -89,6 +89,7 @@ static jk_object_t string(parser_t *p) {
     if (!str)
         return jk_gen_parse_error(p, "failed to unescape string");
     jk_object_t res = jk_make_string(str);
+    free(str);
     next(p);
     return res;
 }
