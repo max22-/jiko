@@ -51,29 +51,22 @@ int jk_pop(jk_fiber_t *f, jk_object_t *res) {
     return 1;
 }
 
-int jk_pop_int(jk_fiber_t *f, jk_object_t *res) {
-    jk_object_t tmp;
-    if (!jk_pop(f, &tmp))
-        return 0;
-    if (jk_get_type(tmp) != JK_INT) {
-        jk_object_free(tmp);
-        return jk_raise_error(f, "expected integer");
+#define MAKE_JK_POP(name, type_check, error_msg) \
+    int jk_pop_ ## name(jk_fiber_t *f, jk_object_t *res) { \
+        jk_object_t j; \
+        if (!jk_pop(f, &j)) \
+            return 0; \
+        if (!(type_check)) { \
+            jk_object_free(j); \
+            return jk_raise_error(f, error_msg); \
+        } \
+        *res = j; \
+        return 1;\
     }
-    *res = tmp;
-    return 1;
-}
 
-int jk_pop_word(jk_fiber_t *f, jk_object_t *res) {
-    jk_object_t tmp;
-    if (!jk_pop(f, &tmp))
-        return 0;
-    if (jk_get_type(tmp) != JK_WORD) {
-        jk_object_free(tmp);
-        return jk_raise_error(f, "expected word");
-    }
-    *res = tmp;
-    return 1;
-}
+MAKE_JK_POP(int, jk_get_type(j) == JK_INT, "expected integer")
+MAKE_JK_POP(word, jk_get_type(j) == JK_WORD, "expected word")
+MAKE_JK_POP(quotation, jk_get_type(j) == JK_QUOTATION || j == JK_NIL, "expected quotation")
 
 void jk_fiber_eval(jk_fiber_t *f, size_t limit) {
     while (limit--) {

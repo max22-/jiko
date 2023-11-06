@@ -113,6 +113,13 @@ void swap(jk_fiber_t *f) {
     jk_push(f, a);
 }
 
+void call(jk_fiber_t *f) {
+    jk_object_t q;
+    if(!jk_pop_quotation(f, &q))
+        return;
+    f->queue = jk_concat(q, f->queue);
+}
+
 void single_quote(jk_fiber_t *f) {
     jk_object_t j = jk_fiber_dequeue(f);
     if(j == JK_EOF) {
@@ -142,6 +149,7 @@ void register_lib(jk_fiber_t *f) {
     jk_define(f, jk_make_word_from_string("dup"), jk_make_pair(jk_make_builtin(dup), JK_NIL));
     jk_define(f, jk_make_word_from_string("drop"), jk_make_pair(jk_make_builtin(drop), JK_NIL));
     jk_define(f, jk_make_word_from_string("swap"), jk_make_pair(jk_make_builtin(swap), JK_NIL));
+    jk_define(f, jk_make_word_from_string("call"), jk_make_pair(jk_make_builtin(call), JK_NIL));
     jk_define(f, jk_make_word_from_string("'"), jk_make_pair(jk_make_builtin(single_quote), JK_NIL));
     jk_define(f, jk_make_word_from_string("def"), jk_make_pair(jk_make_builtin(def), JK_NIL));
 }

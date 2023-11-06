@@ -174,14 +174,17 @@ jk_object_t jk_make_pair(jk_object_t car, jk_object_t cdr) {
     return res;
 }
 
+jk_object_t jk_concat(jk_object_t q1, jk_object_t q2) {
+    if(q1 == JK_NIL)
+        return q2;
+    jk_object_t ji;
+    for(ji = q1; CDR(ji) != JK_NIL; ji = CDR(ji));
+    CDR(ji) = q2;
+    return q1;
+}
+
 jk_object_t jk_append(jk_object_t q, jk_object_t j) {
-    if (q == JK_NIL)
-        return jk_make_pair(j, JK_NIL);
-    jk_object_t qi;
-    for (qi = q; CDR(qi) != JK_NIL; qi = CDR(qi))
-        ;
-    CDR(qi) = jk_make_pair(j, JK_NIL);
-    return q;
+    return jk_concat(q, jk_make_pair(j, JK_NIL));
 }
 
 jk_object_t jk_make_builtin(void (*f)(jk_fiber_t *)) {

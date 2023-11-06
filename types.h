@@ -68,6 +68,7 @@ jk_object_t jk_make_string(const char *str);
 jk_object_t jk_make_word(word_t w);
 jk_object_t jk_make_word_from_string(const char *w);
 jk_object_t jk_make_pair(jk_object_t car, jk_object_t cdr);
+jk_object_t jk_concat(jk_object_t q1, jk_object_t q2);
 jk_object_t jk_append(jk_object_t q, jk_object_t j);
 jk_object_t jk_make_builtin(void (*f)(struct jk_fiber *));
 jk_object_t jk_make_fiber();
