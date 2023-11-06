@@ -121,6 +121,20 @@ void _false(jk_fiber_t *f) {
     jk_push(f, jk_make_bool(0));
 }
 
+void equal(jk_fiber_t *f) {
+    jk_object_t a, b;
+    if(!jk_pop_int(f, &b))
+        return;
+    if(!jk_pop_int(f, &a)) {
+        jk_object_free(b);
+        return;
+    }
+    jk_object_t j = jk_make_bool(AS_INT(a)==AS_INT(b));
+    jk_push(f, j);
+    jk_object_free(a);
+    jk_object_free(b);
+}
+
 void ifte(jk_fiber_t *f) {
     jk_object_t cond, th, el;
     if(!jk_pop_quotation(f, &el))
@@ -193,6 +207,7 @@ builtins_table_entry_t stdlib_builtins[] = {
     {"swap", swap},
     {"true", _true},
     {"false", _false},
+    {"=", equal},
     {"ifte", ifte},
     {"call", call},
     {"'", single_quote},
