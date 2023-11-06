@@ -151,17 +151,28 @@ void defn(jk_fiber_t *f) {
     jk_define(f, name, jk_make_pair(body, jk_make_pair(jk_make_word_from_string("call"), JK_NIL)));
 }
 
-void register_lib(jk_fiber_t *f) {
-    jk_define(f, jk_make_word_from_string("+"), jk_make_pair(jk_make_builtin(add), JK_NIL));
-    jk_define(f, jk_make_word_from_string("-"), jk_make_pair(jk_make_builtin(sub), JK_NIL));
-    jk_define(f, jk_make_word_from_string("*"), jk_make_pair(jk_make_builtin(mul), JK_NIL));
-    jk_define(f, jk_make_word_from_string("/"), jk_make_pair(jk_make_builtin(_div), JK_NIL));
-    jk_define(f, jk_make_word_from_string("%"), jk_make_pair(jk_make_builtin(mod), JK_NIL));
-    jk_define(f, jk_make_word_from_string("dup"), jk_make_pair(jk_make_builtin(dup), JK_NIL));
-    jk_define(f, jk_make_word_from_string("drop"), jk_make_pair(jk_make_builtin(drop), JK_NIL));
-    jk_define(f, jk_make_word_from_string("swap"), jk_make_pair(jk_make_builtin(swap), JK_NIL));
-    jk_define(f, jk_make_word_from_string("call"), jk_make_pair(jk_make_builtin(call), JK_NIL));
-    jk_define(f, jk_make_word_from_string("'"), jk_make_pair(jk_make_builtin(single_quote), JK_NIL));
-    jk_define(f, jk_make_word_from_string("def"), jk_make_pair(jk_make_builtin(def), JK_NIL));
-    jk_define(f, jk_make_word_from_string("defn"), jk_make_pair(jk_make_builtin(defn), JK_NIL));
+builtins_table_entry_t stdlib_builtins[] = {
+    {"+", add},
+    {"-", sub},
+    {"*", mul},
+    {"/", _div},
+    {"%", mod},
+    {"dup", dup},
+    {"drop", drop},
+    {"swap", swap},
+    {"call", call},
+    {"'", single_quote},
+    {"def", def},
+    {"defn", defn},
+    {NULL, NULL}
+};
+
+void register_lib(jk_fiber_t *f, builtins_table_entry_t *tbl) {
+    int i = 0;
+    while(tbl[i].name) {
+        const char *name = tbl[i].name;
+        void (*builtin)(jk_fiber_t*) = tbl[i].builtin;
+        jk_define(f, jk_make_word_from_string(name), jk_make_pair(jk_make_builtin(builtin), JK_NIL));    
+        i++;
+    }
 }

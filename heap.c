@@ -114,7 +114,7 @@ jk_fiber_t *jk_fiber_new() {
     res->stack = JK_NIL;
     res->queue = JK_NIL;
     res->env_stack = jk_make_pair(JK_NIL, JK_NIL);
-    register_lib(res);
+    register_lib(res, stdlib_builtins);
     return res;
 }
 
