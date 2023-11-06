@@ -16,3 +16,4 @@ void jk_push(jk_fiber_t *f, jk_object_t j);
 int jk_pop(jk_fiber_t *f, jk_object_t *res);
 int jk_pop_int(jk_fiber_t *f, jk_object_t *res);
 int jk_pop_word(jk_fiber_t *f, jk_object_t *res);
+int jk_pop_quotation(jk_fiber_t *f, jk_object_t *res);

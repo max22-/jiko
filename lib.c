@@ -140,6 +140,17 @@ void def(jk_fiber_t *f) {
     jk_define(f, name, jk_make_pair(body, JK_NIL));
 }
 
+void defn(jk_fiber_t *f) {
+    jk_object_t name, body;
+    if(!jk_pop_word(f, &name))
+        return;
+    if(!jk_pop_quotation(f, &body)) {
+        jk_object_free(name);
+        return;
+    }
+    jk_define(f, name, jk_make_pair(body, jk_make_pair(jk_make_word_from_string("call"), JK_NIL)));
+}
+
 void register_lib(jk_fiber_t *f) {
     jk_define(f, jk_make_word_from_string("+"), jk_make_pair(jk_make_builtin(add), JK_NIL));
     jk_define(f, jk_make_word_from_string("-"), jk_make_pair(jk_make_builtin(sub), JK_NIL));
@@ -152,4 +163,5 @@ void register_lib(jk_fiber_t *f) {
     jk_define(f, jk_make_word_from_string("call"), jk_make_pair(jk_make_builtin(call), JK_NIL));
     jk_define(f, jk_make_word_from_string("'"), jk_make_pair(jk_make_builtin(single_quote), JK_NIL));
     jk_define(f, jk_make_word_from_string("def"), jk_make_pair(jk_make_builtin(def), JK_NIL));
+    jk_define(f, jk_make_word_from_string("defn"), jk_make_pair(jk_make_builtin(defn), JK_NIL));
 }
