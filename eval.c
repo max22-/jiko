@@ -65,6 +65,7 @@ int jk_pop(jk_fiber_t *f, jk_object_t *res) {
     }
 
 MAKE_JK_POP(int, jk_get_type(j) == JK_INT, "expected integer")
+MAKE_JK_POP(bool, jk_get_type(j) == JK_BOOL, "expected boolean")
 MAKE_JK_POP(word, jk_get_type(j) == JK_WORD, "expected word")
 MAKE_JK_POP(quotation, jk_get_type(j) == JK_QUOTATION || j == JK_NIL, "expected quotation")
 

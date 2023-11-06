@@ -113,6 +113,42 @@ void swap(jk_fiber_t *f) {
     jk_push(f, a);
 }
 
+void _true(jk_fiber_t *f) {
+    jk_push(f, jk_make_bool(1));
+}
+
+void _false(jk_fiber_t *f) {
+    jk_push(f, jk_make_bool(0));
+}
+
+#include "io.h"
+
+void ifte(jk_fiber_t *f) {
+    jk_object_t cond, th, el;
+    if(!jk_pop_quotation(f, &el))
+        return;
+    if(!jk_pop_quotation(f, &th)) {
+        jk_object_free(el);
+        return;
+    }
+    if(!jk_pop_bool(f, &cond)) {
+        jk_object_free(th);
+        jk_object_free(el);
+        return;
+    }
+    jk_print_object(th);
+    
+    if(AS_BOOL(cond)) {
+        f->queue = jk_concat(th, f->queue);
+        jk_object_free(el);
+    } else {
+        f->queue = jk_concat(el, f->queue);
+        jk_object_free(th);
+    }
+    jk_object_free(cond);
+
+}
+
 void call(jk_fiber_t *f) {
     jk_object_t q;
     if(!jk_pop_quotation(f, &q))
@@ -160,6 +196,9 @@ builtins_table_entry_t stdlib_builtins[] = {
     {"dup", dup},
     {"drop", drop},
     {"swap", swap},
+    {"true", _true},
+    {"false", _false},
+    {"ifte", ifte},
     {"call", call},
     {"'", single_quote},
     {"def", def},
