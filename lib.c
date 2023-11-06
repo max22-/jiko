@@ -121,8 +121,6 @@ void _false(jk_fiber_t *f) {
     jk_push(f, jk_make_bool(0));
 }
 
-#include "io.h"
-
 void ifte(jk_fiber_t *f) {
     jk_object_t cond, th, el;
     if(!jk_pop_quotation(f, &el))
@@ -136,8 +134,6 @@ void ifte(jk_fiber_t *f) {
         jk_object_free(el);
         return;
     }
-    jk_print_object(th);
-    
     if(AS_BOOL(cond)) {
         f->queue = jk_concat(th, f->queue);
         jk_object_free(el);
@@ -146,7 +142,6 @@ void ifte(jk_fiber_t *f) {
         jk_object_free(th);
     }
     jk_object_free(cond);
-
 }
 
 void call(jk_fiber_t *f) {
