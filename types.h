@@ -21,10 +21,14 @@ struct jk_fiber;
 
 typedef int jk_object_t;
 
+#define JK_INT_CTYPE long
+#define JK_INT_CTYPE_FORMAT "%ld"
+#define JK_INT_CTYPE_FROM_STRING atol
+
 struct jk_object {
     jk_type type;
     union value {
-        int as_int;
+        JK_INT_CTYPE as_int;
         int as_bool;
         const char *as_string;
         word_t as_word;
@@ -62,7 +66,7 @@ void jk_set_type(jk_object_t, jk_type);
 #define AS_FIBER(j) (heap[(j)].value.as_fiber)
 #define AS_ERROR(j) (heap[(j)].value.as_error)
 
-jk_object_t jk_make_int(int i);
+jk_object_t jk_make_int(JK_INT_CTYPE i);
 jk_object_t jk_make_bool(int b);
 jk_object_t jk_make_string(const char *str);
 jk_object_t jk_make_word(word_t w);

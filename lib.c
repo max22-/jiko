@@ -12,7 +12,7 @@ void add(jk_fiber_t *f) {
         jk_object_free(b);
         return;
     }
-    int c = AS_INT(a) + AS_INT(b);
+    JK_INT_CTYPE c = AS_INT(a) + AS_INT(b);
     jk_object_free(a);
     jk_object_free(b);
     jk_push(f, jk_make_int(c));
@@ -26,7 +26,7 @@ void sub(jk_fiber_t *f) {
         jk_object_free(b);
         return;
     }
-    int c = AS_INT(a) - AS_INT(b);
+    JK_INT_CTYPE c = AS_INT(a) - AS_INT(b);
     jk_object_free(a);
     jk_object_free(b);
     jk_push(f, jk_make_int(c));
@@ -40,7 +40,7 @@ void mul(jk_fiber_t *f) {
         jk_object_free(b);
         return;
     }
-    int c = AS_INT(a) * AS_INT(b);
+    JK_INT_CTYPE c = AS_INT(a) * AS_INT(b);
     jk_object_free(a);
     jk_object_free(b);
     jk_push(f, jk_make_int(c));
@@ -60,7 +60,7 @@ void _div(jk_fiber_t *f) {
         jk_raise_error(f, "division by zero");
         return;
     }
-    int c = AS_INT(a) / AS_INT(b);
+    JK_INT_CTYPE c = AS_INT(a) / AS_INT(b);
     jk_object_free(a);
     jk_object_free(b);
     jk_push(f, jk_make_int(c));
@@ -80,7 +80,7 @@ void mod(jk_fiber_t *f) {
         jk_raise_error(f, "division by zero");
         return;
     }
-    int c = AS_INT(a) % AS_INT(b);
+    JK_INT_CTYPE c = AS_INT(a) % AS_INT(b);
     jk_object_free(a);
     jk_object_free(b);
     jk_push(f, jk_make_int(c));

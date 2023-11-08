@@ -52,7 +52,7 @@ static void next(parser_t *p) {
 
 static jk_parse_result_t integer(parser_t *p) {
     jk_parse_result_t res = {.type = JK_PARSE_OK,
-                             .result.j = jk_make_int(atoi(p->look->value))};
+                             .result.j = jk_make_int(JK_INT_CTYPE_FROM_STRING(p->look->value))};
     next(p);
     return res;
 }

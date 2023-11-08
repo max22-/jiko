@@ -134,7 +134,7 @@ jk_type jk_get_type(jk_object_t j) {
 
 /* Constructors **************************************************************/
 
-jk_object_t jk_make_int(int i) {
+jk_object_t jk_make_int(JK_INT_CTYPE i) {
     jk_object_t res = jk_object_alloc();
     jk_set_type(res, JK_INT);
     AS_INT(res) = i;
@@ -270,7 +270,7 @@ void jk_print_object(jk_object_t j) {
         jk_printf("<undefined>");
         break;
     case JK_INT:
-        jk_printf("%d", AS_INT(j));
+        jk_printf(JK_INT_CTYPE_FORMAT, AS_INT(j));
         break;
     case JK_BOOL:
         jk_printf("%s", AS_BOOL(j) ? "true" : "false");
