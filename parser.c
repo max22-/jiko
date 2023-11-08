@@ -8,7 +8,7 @@
 static void next(parser_t *p);
 
 parser_t *parser_new() {
-    parser_t *res = malloc(sizeof(parser_t));
+    parser_t *res = (parser_t*)malloc(sizeof(parser_t));
     assert(res);
     res->lexer = lexer_new();
     res->look = NULL;
@@ -36,7 +36,7 @@ static jk_parse_result_t jk_gen_parse_error(parser_t *p,
                                             enum jk_parse_result_type type,
                                             const char *msg) {
     jk_parse_result_t res;
-    char *err = malloc(strlen(msg) + 1 + 64);
+    char *err = (char*)malloc(strlen(msg) + 1 + 64);
     assert(err);
     sprintf(err, "%d:%d: %s", p->look->line, p->look->column, msg);
     res.type = type;
@@ -51,14 +51,15 @@ static void next(parser_t *p) {
 }
 
 static jk_parse_result_t integer(parser_t *p) {
-    jk_parse_result_t res = {.type = JK_PARSE_OK,
-                             .result.j = jk_make_int(JK_INT_CTYPE_FROM_STRING(p->look->value))};
+    jk_parse_result_t res;
+    res.type = JK_PARSE_OK;
+    res.result.j = jk_make_int(JK_INT_CTYPE_FROM_STRING(p->look->value));
     next(p);
     return res;
 }
 
 static char *jk_unescape_string(const char *str) {
-    char *res = malloc(strlen(str) + 1);
+    char *res = (char*)malloc(strlen(str) + 1);
     char *ptr = res;
     assert(*str == '"');
     str++;
@@ -103,16 +104,18 @@ static jk_parse_result_t string(parser_t *p) {
         return jk_gen_parse_error(p, JK_PARSE_ERROR_UNRECOVERABLE,
                                   "failed to unescape string");
     jk_object_t j = jk_make_string(str);
-    jk_parse_result_t res = {.type = JK_PARSE_OK, .result.j = j};
+    jk_parse_result_t res;
+    res.type = JK_PARSE_OK;
+    res.result.j = j;
     free(str);
     next(p);
     return res;
 }
 
 static jk_parse_result_t word(parser_t *p) {
-    jk_parse_result_t res = {.type = JK_PARSE_OK,
-                             .result.j =
-                                 jk_make_word_from_string(p->look->value)};
+    jk_parse_result_t res;
+    res.type = JK_PARSE_OK,
+    res.result.j = jk_make_word_from_string(p->look->value);
     next(p);
     return res;
 }
@@ -144,7 +147,9 @@ static jk_parse_result_t quotation(parser_t *p) {
     }
 parsed:
     next(p); // we match the ']'
-    jk_parse_result_t res = {.type = JK_PARSE_OK, .result.j = q};
+    jk_parse_result_t res;
+    res.type = JK_PARSE_OK;
+    res.result.j = q;
     return res;
 }
 

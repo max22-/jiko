@@ -86,7 +86,7 @@ void mod(jk_fiber_t *f) {
     jk_push(f, jk_make_int(c));
 }
 
-void dup(jk_fiber_t *f) {
+void _dup(jk_fiber_t *f) {
     jk_object_t j;
     if (!jk_pop(f, &j))
         return;
@@ -202,7 +202,7 @@ builtins_table_entry_t stdlib_builtins[] = {
     {"*", mul},
     {"/", _div},
     {"%", mod},
-    {"dup", dup},
+    {"dup", _dup},
     {"drop", drop},
     {"swap", swap},
     {"true", _true},

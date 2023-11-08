@@ -11,7 +11,7 @@ static size_t counter = 0;
 
 void word_table_init(size_t s) {
     table_size = s;
-    word_table = malloc(sizeof(const char *) * s);
+    word_table = (const char**)malloc(sizeof(const char *) * s);
     assert(word_table && "init_word_table: malloc failed");
     for (size_t i = 0; i < s; i++)
         word_table[i] = NULL;
@@ -26,7 +26,7 @@ void word_table_free() {
 
 static void enlarge_table() {
     size_t new_size = table_size * 2;
-    word_table = realloc(word_table, sizeof(const char *) * new_size);
+    word_table = (const char**)realloc(word_table, sizeof(const char *) * new_size);
     if (!word_table)
         jiko_panic("enlarge_table: realloc failed");
     table_size = new_size;

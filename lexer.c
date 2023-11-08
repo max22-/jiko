@@ -10,7 +10,7 @@
 
 token_t *token_new(token_type type, const char *value, unsigned int line,
                    unsigned int column) {
-    token_t *res = malloc(sizeof(token_t));
+    token_t *res = (token_t*)malloc(sizeof(token_t));
     assert(res && "malloc failed");
     res->type = type;
     res->value = strdup(value);
@@ -103,7 +103,7 @@ void lexer_set_text(lexer_t *lex, const char *text) {
 }
 
 void lexer_add(lexer_t *lex, const char *text) {
-    lex->text = realloc((char*)lex->text, lex->text_len + strlen(text) + 1);
+    lex->text = (char*)realloc((char*)lex->text, lex->text_len + strlen(text) + 1);
     assert(lex->text);
     strcat((char*)lex->text, text);
     lex->text_len = strlen(lex->text);

@@ -14,7 +14,8 @@ static size_t heap_size = 0;
 jk_object_t free_list_head = JK_NIL;
 
 void heap_init(size_t s) {
-    heap = malloc(sizeof(struct jk_object) * s);
+    heap = (struct jk_object*)malloc(sizeof(struct jk_object) * s);
+    assert(heap);
     heap_size = s;
     for (size_t i = 0; i < s; i++) {
         heap[i].type = JK_QUOTATION;
@@ -110,7 +111,7 @@ void jk_set_type(jk_object_t j, jk_type t) {
 }
 
 jk_fiber_t *jk_fiber_new() {
-    jk_fiber_t *res = malloc(sizeof(jk_fiber_t));
+    jk_fiber_t *res = (jk_fiber_t*)malloc(sizeof(jk_fiber_t));
     res->stack = JK_NIL;
     res->queue = JK_NIL;
     res->env_stack = jk_make_pair(JK_NIL, JK_NIL);
@@ -129,7 +130,7 @@ jk_type jk_get_type(jk_object_t j) {
     if (j >= 0)
         return heap[j].type;
     else
-        return j;
+        return (jk_type)j;
 }
 
 /* Constructors **************************************************************/
@@ -212,7 +213,7 @@ jk_object_t jk_make_error(jk_object_t j) {
     do {                                                                       \
         if (o >= mem_amount) {                                                 \
             mem_amount += len;                                                 \
-            res = realloc(res, mem_amount);                                    \
+            res = (char*)realloc(res, mem_amount);                                    \
             if (!res)                                                          \
                 return NULL;                                                   \
         }                                                                      \
@@ -221,7 +222,7 @@ jk_object_t jk_make_error(jk_object_t j) {
 char *jk_escape_string(const char *str) {
     const size_t len = strlen(str);
     size_t mem_amount = len < 2 ? 2 : len;
-    char *res = malloc(mem_amount); /* will grow later */
+    char *res = (char*)malloc(mem_amount); /* will grow later */
     size_t o = 0;
     res[o++] = '"';
     MAYBE_GROW();
@@ -255,7 +256,7 @@ char *jk_escape_string(const char *str) {
     MAYBE_GROW();
     res[o++] = '"';
     res[o++] = 0;
-    res = realloc(res, o);
+    res = (char*)realloc(res, o);
     assert(res);
     return res;
 }
