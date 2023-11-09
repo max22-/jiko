@@ -52,6 +52,7 @@ int main() {
             jk_fiber_eval(f, 1000);
             jk_fiber_print(f);
             jk_printf("\n");
+            jk_printf("%zu free objects\n", heap_free_objects_count());
             if(!repl)
                 goto cleanup;
             if(!input(input_buffer, sizeof(input_buffer), 0))

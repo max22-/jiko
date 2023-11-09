@@ -72,6 +72,13 @@ void jk_object_free(jk_object_t j) {
     free_list_head = j;
 }
 
+size_t heap_free_objects_count() {
+    size_t res = 0;
+    for(jk_object_t j = free_list_head; j != JK_NIL; j = CDR(j))
+        res++;
+    return res;
+}
+
 jk_object_t jk_object_clone(jk_object_t j) {
     switch (jk_get_type(j)) {
     case JK_UNDEFINED:
