@@ -3,6 +3,7 @@
 #include "misc.h"
 #include "types.h"
 #include "word_table.h"
+#include "heap.h"
 #include <assert.h>
 #include <stdint.h>
 #include <stdio.h>
