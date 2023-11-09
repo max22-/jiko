@@ -40,6 +40,8 @@ print(deps)
 print(files)
 
 with open(f"amalgamation/{lib_name}.h", "w") as output:
+    output.write("#ifndef JIKO_H\n")
+    output.write("#define JIKO_H\n")
     for path in files:
         output.write("/* " + 74 * "*" + " */\n")
         output.write(f"/* {path} */\n")
@@ -54,6 +56,7 @@ with open(f"amalgamation/{lib_name}.h", "w") as output:
         if path.endswith(".c"):
             output.write("#endif\n")
         f.close()
+    output.write("#endif /* JIKO_H */")
 
 with open("main.c", "r") as main_in:
     with open("amalgamation/main.c", "w") as main_out:
