@@ -16,7 +16,11 @@ jk_object_t jk_fiber_dequeue(jk_fiber_t *f) {
     else {
         assert(jk_get_type(f->queue) == JK_QUOTATION);
         jk_object_t res = CAR(f->queue);
+        jk_object_t garbage = f->queue;
         f->queue = CDR(f->queue);
+        CAR(garbage) = JK_NIL;
+        CDR(garbage) = JK_NIL;
+        jk_object_free(garbage);
         return res;
     }
 }
